@@ -12,9 +12,14 @@ import {
   ExternalLink,
   Check,
   ChevronDown,
+  Menu,
 } from "lucide-react";
 
-export function Header() {
+interface HeaderProps {
+  onOpenMobileMenu?: () => void;
+}
+
+export function Header({ onOpenMobileMenu }: HeaderProps) {
   const router = useRouter();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -107,21 +112,39 @@ export function Header() {
   ];
 
   return (
-    <div className="flex items-center gap-4 px-8 py-3.5 border-b border-[var(--line)] bg-[var(--s1)] sticky top-0 z-30 select-none">
+    <div className="flex items-center gap-2.5 sm:gap-4 px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 border-b border-[var(--line)] bg-[var(--s1)] sticky top-0 z-30 select-none">
+      {/* Mobile Hamburger Toggle */}
+      <button
+        type="button"
+        onClick={onOpenMobileMenu}
+        className="lg:hidden p-2 -ml-1 rounded-lg text-[var(--mute)] hover:text-[var(--ink)] hover:bg-[var(--s2)] transition-colors shrink-0"
+        aria-label="Buka menu navigasi"
+      >
+        <Menu className="w-5 h-5 stroke-[1.8]" />
+      </button>
+
+      {/* Mobile Brand Logo */}
+      <Link href="/" className="lg:hidden flex items-center gap-2 shrink-0 mr-1 group">
+        <img src="/logo.png" alt="NEXTRACE" className="w-7 h-7 object-contain" />
+        <span className="font-bold text-[15px] tracking-tight text-[var(--ink)] hidden xs:inline">
+          NEXTRACE
+        </span>
+      </Link>
+
       {/* Search Input Bar */}
-      <form onSubmit={handleSearchSubmit} className="flex-1 max-w-[560px]">
-        <div className="flex items-center gap-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-0 text-[var(--mute)] focus-within:border-[var(--acc)] transition-colors">
-          <Search className="w-[18px] h-[18px] shrink-0 text-[var(--mute)] stroke-[1.7]" />
+      <form onSubmit={handleSearchSubmit} className="flex-1 max-w-[560px] min-w-0">
+        <div className="flex items-center gap-2 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-2.5 sm:px-3 py-0 text-[var(--mute)] focus-within:border-[var(--acc)] transition-colors">
+          <Search className="w-4 h-4 sm:w-[18px] sm:h-[18px] shrink-0 text-[var(--mute)] stroke-[1.7]" />
           <input
             ref={searchInputRef}
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari gambar, username, email, nomor telepon, domain, atau buzzer"
+            placeholder="Cari target, akun, foto, domain, email..."
             aria-label="Pencarian"
-            className="flex-1 min-w-0 bg-transparent border-0 text-[var(--ink)] font-inherit text-[13.5px] py-2 focus:outline-none placeholder:text-[var(--mute)]"
+            className="flex-1 min-w-0 bg-transparent border-0 text-[var(--ink)] font-inherit text-[12.5px] sm:text-[13.5px] py-1.5 sm:py-2 focus:outline-none placeholder:text-[var(--mute)]"
           />
-          <span className="text-[11px] font-mono text-[var(--mute)] border border-[var(--line)] px-1.5 py-0.5 rounded bg-[var(--s1)]">
+          <span className="hidden sm:inline-block text-[11px] font-mono text-[var(--mute)] border border-[var(--line)] px-1.5 py-0.5 rounded bg-[var(--s1)] shrink-0">
             Ctrl+K
           </span>
         </div>
@@ -132,7 +155,7 @@ export function Header() {
         type="button"
         onClick={toggleTheme}
         title={isDark ? "Beralih ke Mode Terang" : "Beralih ke Mode Gelap"}
-        className="p-2 rounded-lg text-[var(--mute)] hover:text-[var(--ink)] hover:bg-[var(--s2)] transition-colors"
+        className="p-2 rounded-lg text-[var(--mute)] hover:text-[var(--ink)] hover:bg-[var(--s2)] transition-colors shrink-0"
       >
         {isDark ? (
           <Sun className="w-[18px] h-[18px] stroke-[1.7]" />
@@ -142,7 +165,7 @@ export function Header() {
       </button>
 
       {/* Notification Bell */}
-      <div className="relative ml-auto">
+      <div className="relative ml-auto shrink-0">
         <button
           type="button"
           onClick={() => {
@@ -162,7 +185,7 @@ export function Header() {
 
         {/* Notifications Popover */}
         {showNotifications && (
-          <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[var(--s1)] border border-[var(--line)] rounded-lg shadow-lg z-50 p-3 animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 mt-2 sm:w-96 bg-[var(--s1)] border border-[var(--line)] rounded-lg shadow-xl z-50 p-3 animate-in fade-in slide-in-from-top-2 duration-150">
             <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-[var(--line)]">
               <span className="font-semibold text-[13.5px] text-[var(--ink)]">
                 Notifikasi Peringatan
@@ -210,19 +233,19 @@ export function Header() {
       </div>
 
       {/* User Profile */}
-      <div className="relative">
+      <div className="relative shrink-0">
         <button
           type="button"
           onClick={() => {
             setShowUserMenu(!showUserMenu);
             setShowNotifications(false);
           }}
-          className="flex items-center gap-2.5 p-1 rounded-lg hover:bg-[var(--s2)] transition-colors"
+          className="flex items-center gap-2 p-1 rounded-lg hover:bg-[var(--s2)] transition-colors"
         >
           <span className="w-8 h-8 rounded-full bg-[var(--acc)]/15 border border-[var(--acc)]/30 grid place-items-center font-bold text-[11.5px] font-mono text-[var(--acc)] select-none">
             AN
           </span>
-          <div className="text-left hidden sm:block">
+          <div className="text-left hidden md:block">
             <div className="text-[13px] font-semibold text-[var(--ink)] leading-tight">
               Admin Nextrace
             </div>
@@ -230,11 +253,11 @@ export function Header() {
               Superadmin Cyber OSINT
             </small>
           </div>
-          <ChevronDown className="w-3.5 h-3.5 text-[var(--mute)] hidden sm:block" />
+          <ChevronDown className="w-3.5 h-3.5 text-[var(--mute)] hidden md:block" />
         </button>
 
         {showUserMenu && (
-          <div className="absolute right-0 mt-2 w-56 bg-[var(--s1)] border border-[var(--line)] rounded-lg shadow-lg z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 mt-2 sm:w-64 bg-[var(--s1)] border border-[var(--line)] rounded-lg shadow-xl z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-150">
             <div className="px-3 py-2 border-b border-[var(--line)] mb-1">
               <p className="text-[12.5px] font-medium text-[var(--ink)]">
                 Admin Nextrace

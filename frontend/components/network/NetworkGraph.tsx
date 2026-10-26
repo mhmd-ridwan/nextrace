@@ -336,10 +336,10 @@ export function NetworkGraph({
       className={`relative bg-[var(--bg)] border border-[var(--line)] rounded-[10px] overflow-hidden select-none ${className}`}
     >
       {/* ── Dynamic Top Bar Controls ── */}
-      <div className="absolute top-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+      <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between gap-2 pointer-events-none">
         {/* Left: Filter Buttons & Simulation State Pill */}
-        <div className="flex items-center gap-1.5 p-1 bg-[var(--s1)]/90 backdrop-blur-md border border-[var(--line)] rounded-[6px] pointer-events-auto shadow-sm">
-          <span className="text-[10.5px] font-mono text-[var(--mute)] px-2 uppercase font-semibold flex items-center gap-1">
+        <div className="flex items-center gap-1.5 p-1 bg-[var(--s1)]/90 backdrop-blur-md border border-[var(--line)] rounded-[6px] pointer-events-auto shadow-sm overflow-x-auto max-w-[calc(100%-95px)] sm:max-w-none">
+          <span className="text-[10.5px] font-mono text-[var(--mute)] px-2 uppercase font-semibold flex items-center gap-1 shrink-0">
             <Filter className="w-3 h-3 text-[var(--acc)]" />
             Filter:
           </span>
@@ -352,7 +352,7 @@ export function NetworkGraph({
             <button
               key={f.id}
               onClick={() => setActiveFilter(f.id as any)}
-              className={`px-2.5 py-1 rounded text-[11px] font-mono transition-colors cursor-pointer ${
+              className={`px-2.5 py-1 rounded text-[11px] font-mono transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                 activeFilter === f.id
                   ? "bg-[var(--s2)] text-[var(--ink)] font-semibold border border-[var(--acc)] shadow-[inset_2px_0_var(--acc)]"
                   : "text-[var(--mute)] hover:text-[var(--ink)] hover:bg-[var(--s2)]"
@@ -362,12 +362,12 @@ export function NetworkGraph({
             </button>
           ))}
 
-          <div className="w-[1px] h-4 bg-[var(--line)] mx-1" />
+          <div className="w-[1px] h-4 bg-[var(--line)] mx-1 shrink-0" />
 
           {/* Physics Simulation Play/Pause Toggle */}
           <button
             onClick={() => setIsSimulating((s) => !s)}
-            className={`px-2 py-1 rounded text-[11px] font-mono flex items-center gap-1.5 transition-colors cursor-pointer ${
+            className={`px-2 py-1 rounded text-[11px] font-mono flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
               isSimulating
                 ? "bg-[var(--lo)]/15 text-[var(--lo)] border border-[var(--lo)]/30 font-semibold"
                 : "bg-[var(--s2)] text-[var(--mute)] border border-[var(--line)] hover:text-[var(--ink)]"
@@ -380,7 +380,7 @@ export function NetworkGraph({
         </div>
 
         {/* Right: Zoom & Layout Reset Controls */}
-        <div className="flex items-center gap-1 p-1 bg-[var(--s1)]/90 backdrop-blur-md border border-[var(--line)] rounded-[6px] pointer-events-auto shadow-sm">
+        <div className="flex items-center gap-1 p-1 bg-[var(--s1)]/90 backdrop-blur-md border border-[var(--line)] rounded-[6px] pointer-events-auto shadow-sm shrink-0">
           <button
             onClick={() => setZoom((z) => Math.min(z + 0.2, 2.5))}
             className="p-1.5 text-[var(--mute)] hover:text-[var(--ink)] hover:bg-[var(--s2)] rounded cursor-pointer transition-colors"
@@ -409,7 +409,7 @@ export function NetworkGraph({
       <svg
         ref={svgRef}
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        className="w-full h-[580px] cursor-grab active:cursor-grabbing bg-[radial-gradient(ellipse_at_center,_var(--s1)_0%,_var(--bg)_100%)]"
+        className="w-full h-[400px] sm:h-[480px] md:h-[580px] cursor-grab active:cursor-grabbing bg-[radial-gradient(ellipse_at_center,_var(--s1)_0%,_var(--bg)_100%)]"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}

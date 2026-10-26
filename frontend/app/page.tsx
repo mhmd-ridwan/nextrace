@@ -481,7 +481,7 @@ export default function DashboardPage() {
         );
 
   return (
-    <div className="p-7 sm:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-5 sm:space-y-6">
       {/* ── Top Header: Command Eyebrow & Status ── */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[var(--line)] pb-5">
         <div>

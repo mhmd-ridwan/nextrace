@@ -256,7 +256,7 @@ function NomorHpContent() {
   };
 
   return (
-    <div className="p-7 sm:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-5 sm:space-y-6">
       {/* ── Page Header ── */}
       <div className="flex justify-between items-end gap-4 flex-wrap border-b border-[var(--line)] pb-5">
         <div>
@@ -266,24 +266,24 @@ function NomorHpContent() {
               NEXTRACE OSINT &bull; CELLULAR TELEMETRY &bull; LEAK CORRELATION
             </span>
           </div>
-          <h1 className="text-[22px] font-bold text-[var(--ink)] tracking-[-0.01em] m-0 flex items-center gap-2">
+          <h1 className="text-[20px] sm:text-[22px] font-bold text-[var(--ink)] tracking-[-0.01em] m-0 flex items-center gap-2">
             <Phone className="w-5 h-5 text-[var(--acc)] stroke-[1.8]" />
             Nomor HP — Intelijen &amp; Jejak Seluler
           </h1>
-          <p className="mt-1 mb-0 text-[13px] text-[var(--mute)]">
+          <p className="mt-1 mb-0 text-[12.5px] sm:text-[13px] text-[var(--mute)]">
             Pelacakan identitas nomor telepon, identifikasi operator seluler Indonesia, rute HLR, kategori paket, dan deteksi kebocoran DPT/kredensial publik.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
           {/* Dynamic Case Selector */}
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--s1)] border border-[var(--line)] rounded-[6px]">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--s1)] border border-[var(--line)] rounded-[6px] w-full sm:w-auto">
             <Briefcase className="w-3.5 h-3.5 text-[var(--mute)] shrink-0" />
             <span className="text-[12px] text-[var(--mute)] font-medium">Kasus Aktif:</span>
             <select
               value={selectedCaseId}
               onChange={(e) => handleCaseChange(e.target.value)}
-              className="bg-transparent text-[12.5px] font-mono font-semibold text-[var(--ink)] focus:outline-none cursor-pointer"
+              className="bg-transparent text-[12.5px] font-mono font-semibold text-[var(--ink)] focus:outline-none cursor-pointer flex-1 sm:flex-initial"
             >
               {investigations.length > 0 ? (
                 investigations.map((inv) => (
@@ -301,7 +301,7 @@ function NomorHpContent() {
 
           <Link
             href={`/email?investigation_id=${selectedCaseId}`}
-            className="px-3.5 py-1.5 rounded-[6px] bg-[var(--s2)] text-[var(--ink)] border border-[var(--line)] hover:border-[var(--mute)] text-[13px] font-medium transition-colors"
+            className="px-3.5 py-1.5 rounded-[6px] bg-[var(--s2)] text-[var(--ink)] border border-[var(--line)] hover:border-[var(--mute)] text-[13px] font-medium transition-colors w-full sm:w-auto text-center"
           >
             Beralih ke Audit Email
           </Link>

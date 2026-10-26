@@ -66,7 +66,7 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-5 sm:space-y-6">
       {/* ── Top Header ── */}
       <div className="bg-[var(--s1)] border border-[var(--line)] rounded-[10px] p-5">
         <div className="flex items-center gap-2 mb-1">

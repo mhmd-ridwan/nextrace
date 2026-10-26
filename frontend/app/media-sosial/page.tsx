@@ -379,7 +379,7 @@ function MediaSosialContent() {
   }, [searchQuery, filterSeverity, filterActiveOnly, baseline, findings]);
 
   return (
-    <div className="p-7 sm:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-5 sm:space-y-6">
       {/* ── Page Header ── */}
       <div className="flex justify-between items-end gap-4 flex-wrap border-b border-[var(--line)] pb-5">
         <div>
@@ -389,35 +389,35 @@ function MediaSosialContent() {
               NEXTRACE OSINT &bull; SOCIAL MEDIA BRAND PROTECTION &bull; MULTI-PLATFORM
             </span>
           </div>
-          <h1 className="text-[22px] font-bold text-[var(--ink)] tracking-[-0.01em] m-0 flex items-center gap-2">
+          <h1 className="text-[20px] sm:text-[22px] font-bold text-[var(--ink)] tracking-[-0.01em] m-0 flex items-center gap-2">
             <Users className="w-5 h-5 text-[var(--acc)] stroke-[1.8]" />
             Media Sosial — Pelacak Akun Tiruan
           </h1>
-          <p className="mt-1 mb-0 text-[13px] text-[var(--mute)]">
+          <p className="mt-1 mb-0 text-[12.5px] sm:text-[13px] text-[var(--mute)]">
             Identifikasi multi-signal otomatis terhadap akun kloning, homoglyph confusables, dan pembajakan bio resmi.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto">
           <button
             type="button"
             onClick={handleTriggerScan}
             disabled={scanning}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--acc)] text-[var(--bg)] rounded-[6px] text-[13px] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="flex-1 sm:flex-initial justify-center flex items-center gap-1.5 px-3 py-1.5 bg-[var(--acc)] text-[var(--bg)] rounded-[6px] text-[13px] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             <Sparkles className={`w-3.5 h-3.5 ${scanning ? "animate-spin" : ""}`} />
             <span>{scanning ? "Memindai Global..." : "+ Pindai Akun Global"}</span>
           </button>
           <Link
             href="/analisis-gambar"
-            className="px-3.5 py-1.5 rounded-[6px] bg-[var(--s2)] text-[var(--ink)] border border-[var(--line)] hover:border-[var(--mute)] text-[13px] font-medium transition-colors"
+            className="flex-1 sm:flex-initial text-center px-3.5 py-1.5 rounded-[6px] bg-[var(--s2)] text-[var(--ink)] border border-[var(--line)] hover:border-[var(--mute)] text-[13px] font-medium transition-colors"
           >
-            Buka Analisis Gambar (pHash)
+            Analisis Gambar
           </Link>
           <button
             type="button"
             onClick={() => loadData()}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--s2)] border border-[var(--line)] hover:border-[var(--mute)] text-[var(--ink)] rounded-[6px] text-[13px] font-medium transition-colors"
+            className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[var(--s2)] border border-[var(--line)] hover:border-[var(--mute)] text-[var(--ink)] rounded-[6px] text-[13px] font-medium transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
             <span>Segarkan</span>

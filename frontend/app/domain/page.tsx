@@ -65,7 +65,7 @@ function DomainContent() {
   const isMedRisk = record?.risk_status === "Sedang";
 
   return (
-    <div className="p-7 sm:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-5 sm:space-y-6">
       {/* ── Page Header ── */}
       <div className="flex justify-between items-end gap-4 flex-wrap border-b border-[var(--line)] pb-5">
         <div>
@@ -75,19 +75,19 @@ function DomainContent() {
               NEXTRACE OSINT &bull; LIVE DOMAIN &amp; DNS INTELLIGENCE &bull; WHOIS
             </span>
           </div>
-          <h1 className="text-[22px] font-bold text-[var(--ink)] tracking-[-0.01em] m-0 flex items-center gap-2">
+          <h1 className="text-[20px] sm:text-[22px] font-bold text-[var(--ink)] tracking-[-0.01em] m-0 flex items-center gap-2">
             <Globe className="w-5 h-5 text-[var(--acc)] stroke-[1.8]" />
             Domain &amp; Reputasi Digital
           </h1>
-          <p className="mt-1 mb-0 text-[13px] text-[var(--mute)]">
+          <p className="mt-1 mb-0 text-[12.5px] sm:text-[13px] text-[var(--mute)]">
             Audit kepemilikan nama domain, rekaman DNS real-time, usia pendaftaran, dan verifikasi sertifikat TLS.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Link
             href="/evidence"
-            className="px-3.5 py-1.5 rounded-[6px] bg-[var(--s2)] text-[var(--ink)] border border-[var(--line)] hover:border-[var(--mute)] text-[13px] font-medium transition-colors"
+            className="px-3.5 py-1.5 rounded-[6px] bg-[var(--s2)] text-[var(--ink)] border border-[var(--line)] hover:border-[var(--mute)] text-[13px] font-medium transition-colors w-full sm:w-auto text-center"
           >
             Buka Vault Bukti Digital
           </Link>

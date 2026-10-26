@@ -496,7 +496,7 @@ function BuzzerContent() {
   }, [activeScan, comments]);
 
   return (
-    <div className="p-7 sm:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-5 sm:space-y-6">
       {/* ── Page Header ── */}
       <div className="flex justify-between items-end gap-4 flex-wrap border-b border-[var(--line)] pb-5">
         <div>
@@ -506,30 +506,30 @@ function BuzzerContent() {
               NEXTRACE OSINT &bull; DETEKSI KOORDINASI BUZZER &bull; ANOMALI AKUN
             </span>
           </div>
-          <h1 className="text-[22px] font-bold text-[var(--ink)] tracking-[-0.01em] m-0 flex items-center gap-2">
+          <h1 className="text-[20px] sm:text-[22px] font-bold text-[var(--ink)] tracking-[-0.01em] m-0 flex items-center gap-2">
             <Bot className="w-5 h-5 text-[var(--acc)] stroke-[1.8]" />
             Buzzer &amp; Bot Hunter — Analisis Komentar &amp; Astroturfing
           </h1>
-          <p className="mt-1 mb-0 text-[13px] text-[var(--mute)]">
+          <p className="mt-1 mb-0 text-[12.5px] sm:text-[13px] text-[var(--mute)]">
             Scanning real-time via Edge Headless OSINT: ekstraksi langsung entitas postingan asli, interaksi publik, dan deteksi anomali buzzer tanpa data sintetis.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
           <button
             type="button"
             onClick={handleExportPdfThreatDossier}
             disabled={exportingPdf || !activeScan}
-            className="px-3.5 py-2 rounded-[6px] bg-[var(--s2)] hover:border-[var(--mute)] border border-[var(--line)] text-[var(--ink)] font-semibold text-[13px] transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            className="flex-1 sm:flex-initial justify-center px-3.5 py-2 rounded-[6px] bg-[var(--s2)] hover:border-[var(--mute)] border border-[var(--line)] text-[var(--ink)] font-semibold text-[13px] transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             title="Kompilasi dan unduh berkas resmi PDF Threat Dossier"
           >
             <FileText className={`w-3.5 h-3.5 text-[var(--acc)] ${exportingPdf ? "animate-spin" : ""}`} />
-            <span>{exportingPdf ? "Mengompilasi PDF..." : "Ekspor PDF Threat Dossier"}</span>
+            <span>{exportingPdf ? "Mengompilasi..." : "Ekspor PDF Threat Dossier"}</span>
           </button>
           <button
             type="button"
             onClick={() => setShowScanDrawer(!showScanDrawer)}
-            className="px-4 py-2 rounded-[6px] bg-[var(--acc)] hover:opacity-90 text-white font-semibold text-[13px] transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+            className="flex-1 sm:flex-initial justify-center px-4 py-2 rounded-[6px] bg-[var(--acc)] hover:opacity-90 text-white font-semibold text-[13px] transition-all flex items-center gap-2 cursor-pointer shadow-sm"
           >
             <Scan className="w-4 h-4 stroke-[2]" />
             <span>{showScanDrawer ? "Tutup Scanner" : "+ Pindai Sasaran Baru"}</span>
@@ -538,7 +538,7 @@ function BuzzerContent() {
             type="button"
             onClick={() => loadData(targetParam)}
             disabled={loading || scanning}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-[var(--s2)] border border-[var(--line)] hover:border-[var(--mute)] text-[var(--ink)] rounded-[6px] text-[13px] font-medium transition-colors disabled:opacity-50 cursor-pointer"
+            className="flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[var(--s2)] border border-[var(--line)] hover:border-[var(--mute)] text-[var(--ink)] rounded-[6px] text-[13px] font-medium transition-colors disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-[var(--acc)]" : ""}`} />
             <span>Segarkan</span>

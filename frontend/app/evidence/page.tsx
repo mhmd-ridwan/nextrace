@@ -144,7 +144,7 @@ export default function DigitalEvidencePage() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-5 sm:space-y-6">
       {/* ── Top Header ── */}
       <div className="bg-[var(--s1)] border border-[var(--line)] rounded-[10px] p-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -163,7 +163,7 @@ export default function DigitalEvidencePage() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap w-full sm:w-auto">
             <button
               onClick={() => setShowUploadModal(true)}
               className="flex items-center gap-2 px-3.5 py-1.5 bg-[var(--acc)] text-[#0e1012] font-semibold rounded-[6px] text-[13px] hover:bg-[var(--acc)]/90 transition-colors cursor-pointer"

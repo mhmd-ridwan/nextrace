@@ -587,7 +587,7 @@ function AnalisisGambarContent() {
     : [];
 
   return (
-    <div className="p-6 sm:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-5 sm:space-y-6">
       {/* ── Page Header ── */}
       <div className="flex justify-between items-end gap-4 flex-wrap border-b border-[var(--line)] pb-5">
         <div>
@@ -597,24 +597,24 @@ function AnalisisGambarContent() {
               NEXTRACE OSINT &bull; VISUAL FORENSICS &bull; AUTONOMOUS GLOBAL PROFILE SCANNER
             </span>
           </div>
-          <h1 className="text-[22px] font-bold text-[var(--ink)] tracking-tight m-0 flex items-center gap-2">
+          <h1 className="text-[20px] sm:text-[22px] font-bold text-[var(--ink)] tracking-tight m-0 flex items-center gap-2">
             <ImageIcon className="w-5 h-5 text-[var(--acc)] stroke-[1.8]" />
             Analisis Gambar &amp; Forensik Citra Digital
           </h1>
-          <p className="mt-1 mb-0 text-[13px] text-[var(--mute)]">
+          <p className="mt-1 mb-0 text-[12.5px] sm:text-[13px] text-[var(--mute)]">
             Pencarian profil pengguna global otomatis dengan 1 foto, ekstraksi forensik metadata EXIF kamera, dan komparasi spektral pHash.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
           {/* Dynamic Case Selector */}
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--s1)] border border-[var(--line)] rounded-[6px]">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--s1)] border border-[var(--line)] rounded-[6px] w-full sm:w-auto">
             <Briefcase className="w-3.5 h-3.5 text-[var(--mute)] shrink-0" />
-            <span className="text-[12px] text-[var(--mute)] font-medium">Kasus Aktif:</span>
+            <span className="text-[12px] text-[var(--mute)] font-medium">Kasus:</span>
             <select
               value={selectedCaseId}
               onChange={(e) => setSelectedCaseId(e.target.value)}
-              className="bg-transparent text-[12.5px] font-mono font-semibold text-[var(--ink)] focus:outline-none cursor-pointer"
+              className="bg-transparent text-[12.5px] font-mono font-semibold text-[var(--ink)] focus:outline-none cursor-pointer flex-1 sm:flex-initial"
             >
               {investigations.length > 0 ? (
                 investigations.map((inv) => (
@@ -631,11 +631,11 @@ function AnalisisGambarContent() {
           </div>
 
           {/* ── 3 DEDICATED TOP TABS ── */}
-          <div className="flex items-center gap-1.5 p-1 bg-[var(--s1)] border border-[var(--line)] rounded-[8px]">
+          <div className="flex items-center gap-1.5 p-1 bg-[var(--s1)] border border-[var(--line)] rounded-[8px] overflow-x-auto max-w-full pb-1 shrink-0">
             <button
               type="button"
               onClick={() => setActiveTab("global")}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-[5px] text-[12px] font-mono transition-colors cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-[5px] text-[12px] font-mono transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === "global"
                   ? "bg-[var(--s2)] text-[var(--ink)] font-semibold border border-[var(--acc)] shadow-sm"
                   : "text-[var(--mute)] hover:text-[var(--ink)] hover:bg-[var(--s2)]"
@@ -647,7 +647,7 @@ function AnalisisGambarContent() {
             <button
               type="button"
               onClick={() => setActiveTab("exif")}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-[5px] text-[12px] font-mono transition-colors cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-[5px] text-[12px] font-mono transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === "exif"
                   ? "bg-[var(--s2)] text-[var(--ink)] font-semibold border border-[var(--acc)] shadow-sm"
                   : "text-[var(--mute)] hover:text-[var(--ink)] hover:bg-[var(--s2)]"
@@ -659,7 +659,7 @@ function AnalisisGambarContent() {
             <button
               type="button"
               onClick={() => setActiveTab("compare")}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-[5px] text-[12px] font-mono transition-colors cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-[5px] text-[12px] font-mono transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === "compare"
                   ? "bg-[var(--s2)] text-[var(--ink)] font-semibold border border-[var(--acc)] shadow-sm"
                   : "text-[var(--mute)] hover:text-[var(--ink)] hover:bg-[var(--s2)]"
@@ -1517,7 +1517,7 @@ function AnalisisGambarContent() {
                     value={exifSearch}
                     onChange={(e) => setExifSearch(e.target.value)}
                     placeholder="Cari nama atau nilai tag EXIF..."
-                    className="bg-[var(--s2)] border border-[var(--line)] rounded-[5px] px-3 py-1 text-[12px] text-[var(--ink)] font-mono placeholder:text-[var(--mute)] focus:outline-none focus:border-[var(--acc)] w-64"
+                    className="bg-[var(--s2)] border border-[var(--line)] rounded-[5px] px-3 py-1 text-[12px] text-[var(--ink)] font-mono placeholder:text-[var(--mute)] focus:outline-none focus:border-[var(--acc)] w-full sm:w-64"
                   />
                 </div>
 
