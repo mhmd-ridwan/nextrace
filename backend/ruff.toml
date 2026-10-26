@@ -1,0 +1,12 @@
+line-length = 120
+
+[lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = [
+    "B008",  # Allow FastAPI Depends() in endpoint arguments
+    "E501",  # Line length handled by formatter
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"

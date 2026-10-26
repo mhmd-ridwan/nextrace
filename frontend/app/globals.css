@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0e1012;
+  --s1: #15181b;
+  --s2: #1b1f23;
+  --line: #262b30;
+  --ink: #e5e7e9;
+  --mute: #8b949b;
+  --acc: #86a8d0;
+  --hi: #df7167;
+  --mid: #cba15a;
+  --lo: #74ab92;
+  --f: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+}
+
+[data-theme="light"] {
+  --bg: #f1f2f3;
+  --s1: #ffffff;
+  --s2: #f6f7f8;
+  --line: #dfe2e5;
+  --ink: #1a1d20;
+  --mute: #69727a;
+  --acc: #3d6694;
+  --hi: #c0453b;
+  --mid: #a97a22;
+  --lo: #3f7a63;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--f);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-y: scroll;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbars matching redesign */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mute);
+}
+
+/* Smooth focus outlines */
+*:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+
+/* Table styles */
+table {
+  border-collapse: collapse;
+}
+
+/* ── OSINT Biometric Laser Scan Animation ── */
+@keyframes scan-laser {
+  0% {
+    top: 2%;
+    opacity: 0.85;
+  }
+  50% {
+    top: 96%;
+    opacity: 1;
+  }
+  100% {
+    top: 2%;
+    opacity: 0.85;
+  }
+}
+
+.animate-scan-laser {
+  animation: scan-laser 2s ease-in-out infinite;
+}
+
+@keyframes scan-grid-pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.animate-scan-grid-pulse {
+  animation: scan-grid-pulse 1.8s ease-in-out infinite;
+}

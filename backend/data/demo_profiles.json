@@ -1,0 +1,91 @@
+{
+  "baseline": {
+    "brand_name": "Ir. H. Joko Widodo",
+    "official_username": "jokowi",
+    "display_name": "Joko Widodo",
+    "website_url": "https://www.instagram.com/jokowi/",
+    "business_category": "Tokoh Publik / Presiden RI ke-7",
+    "contact_info": {
+      "whatsapp": "+6281110001945",
+      "email": "kontak@presidenri.go.id"
+    }
+  },
+  "candidates": [
+    {
+      "platform": "TikTok",
+      "profile_url": "https://tiktok.com/@jokowi.official_bantuan",
+      "username": "jokowi.official_bantuan",
+      "display_name": "Joko Widodo Official Bantuan ✓",
+      "bio": "Akun Resmi Program Bantuan Presiden Joko Widodo. Klaim bantuan modal usaha Rp 10.000.000 via WA: +62 812-9988-1122. Fast respon!",
+      "avatar_url": null,
+      "contact_info": {
+        "whatsapp": "+6281299881122"
+      },
+      "observation_timestamp": "2026-10-24T10:30:00Z",
+      "collection_method": "automated_crawler"
+    },
+    {
+      "platform": "Instagram",
+      "profile_url": "https://instagram.com/jokowi_presiden_ri",
+      "username": "jokowi_presiden_ri",
+      "display_name": "Joko Widodo Presiden RI",
+      "bio": "Akun Dokumentasi & Bantuan Presiden ke-7 RI. Pembagian sembako & bansos tunai. Pendaftaran hanya melalui WA: +62 857-8899-0011.",
+      "avatar_url": null,
+      "contact_info": {
+        "whatsapp": "+6285788990011"
+      },
+      "observation_timestamp": "2026-10-24T14:20:00Z",
+      "collection_method": "manual_submission"
+    },
+    {
+      "platform": "Facebook",
+      "profile_url": "https://facebook.com/jokowidodo.giveaway.resmi",
+      "username": "jokowidodo.giveaway.resmi",
+      "display_name": "Joko Widodo Giveaway Berkah",
+      "bio": "Program berbagi berkah Presiden Joko Widodo untuk rakyat kecil. Transfer biaya administrasi Rp 150rb untuk cairkan Rp 5jt. Hubungi WA admin.",
+      "avatar_url": null,
+      "contact_info": {
+        "whatsapp": "+6281900112233"
+      },
+      "observation_timestamp": "2026-10-24T09:15:00Z",
+      "collection_method": "automated_crawler"
+    },
+    {
+      "platform": "TikTok",
+      "profile_url": "https://tiktok.com/@jokowi_bansos2026",
+      "username": "jokowi_bansos2026",
+      "display_name": "Bansos Presiden Jokowi 2026",
+      "bio": "Info pencairan BLT dan Bansos Pangan langsung dari kantor Presiden. Konfirmasi NIK KTP Anda ke CS WA: 0857-8899-0011.",
+      "avatar_url": null,
+      "contact_info": {
+        "whatsapp": "+6285788990011"
+      },
+      "observation_timestamp": "2026-10-24T11:45:00Z",
+      "collection_method": "automated_crawler"
+    },
+    {
+      "platform": "X",
+      "profile_url": "https://x.com/j0kowi_official",
+      "username": "j0kowi_official",
+      "display_name": "Joko Widodo (Official)",
+      "bio": "Akun alternatif Ir. H. Joko Widodo. Pengaduan masyarakat langsung silakan kirim ke DM atau email bantuan.jokowi@gmail.com.",
+      "avatar_url": null,
+      "contact_info": {
+        "email": "bantuan.jokowi@gmail.com"
+      },
+      "observation_timestamp": "2026-10-24T08:00:00Z",
+      "collection_method": "automated_crawler"
+    },
+    {
+      "platform": "Instagram",
+      "profile_url": "https://instagram.com/presiden_jokowi_fans_ri",
+      "username": "presiden_jokowi_fans_ri",
+      "display_name": "Presiden Jokowi Fans Club",
+      "bio": "Komunitas pendukung setia Pak Jokowi. Waspada akun palsu penipuan yang meminta transfer uang.",
+      "avatar_url": null,
+      "contact_info": {},
+      "observation_timestamp": "2026-10-24T16:30:00Z",
+      "collection_method": "manual_submission"
+    }
+  ]
+}

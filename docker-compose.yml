@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nextrace-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - DEBUG=false
+      - DEMO_MODE=true
+      - DATABASE_URL=sqlite+aiosqlite:///./nextrace.db
+      - SECRET_KEY=prod-secret-change-in-production-abc123xyz
+      - ALIAS_DOMAIN=nextrace-alias.test
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:8000
+    volumes:
+      - backend-data:/app/evidence_store
+      - backend-reports:/app/reports
+      - backend-uploads:/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nextrace-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  backend-data:
+  backend-reports:
+  backend-uploads:
