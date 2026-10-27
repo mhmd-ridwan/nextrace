@@ -33,7 +33,7 @@ const mainNav: NavItem[] = [
   { name: "Media sosial", href: "/media-sosial", icon: Users },
   { name: "Email", href: "/email", icon: Mail },
   { name: "Nomor HP", href: "/nomor-hp", icon: Phone },
-  { name: "Domain", href: "/domain", icon: Globe },
+  { name: "Domain & ASM (Nuclei)", href: "/domain", icon: Globe },
   { name: "Ruang kerja kasus", href: "/investigations", icon: Folder },
   { name: "Laporan", href: "/reports", icon: FileText },
 ];

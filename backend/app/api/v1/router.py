@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
     aliases,
+    attack_surface,
     buzzer,
     evidence,
     health,
@@ -27,3 +28,4 @@ api_v1_router.include_router(investigations.router, prefix="/investigations", ta
 api_v1_router.include_router(evidence.router, prefix="/evidence", tags=["Module C: Digital Evidence"])
 api_v1_router.include_router(reports.router, prefix="/reports", tags=["Module D: Takedown Reports"])
 api_v1_router.include_router(image.router, prefix="/image", tags=["Module G: Image Forensics & EXIF Analysis"])
+api_v1_router.include_router(attack_surface.router, tags=["Module H: Attack Surface Management & Nuclei"])

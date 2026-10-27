@@ -22,7 +22,9 @@ import {
   Investigation,
   InvestigationTimeline,
   LeakCheckResponse,
+  NucleiScanResponse,
   ScanResponse,
+  SubdomainScanResponse,
   SystemInfo,
 } from "@/types";
 
@@ -511,6 +513,30 @@ export const api = {
   async lookupWhois(domain: string): Promise<WhoisLookupResult> {
     const query = new URLSearchParams({ domain });
     return request(`/network/whois?${query.toString()}`);
+  },
+
+  // Module H: Attack Surface Management & Nuclei Engine
+  async scanSubdomains(domain: string, maxSubdomains = 60, investigationId?: string): Promise<SubdomainScanResponse> {
+    return request("/attack-surface/subdomains", {
+      method: "POST",
+      body: JSON.stringify({
+        domain,
+        max_subdomains: maxSubdomains,
+        investigation_id: investigationId,
+      }),
+    });
+  },
+
+  async scanNuclei(data: {
+    target: string;
+    tags?: string[];
+    severity?: string[];
+    investigation_id?: string;
+  }): Promise<NucleiScanResponse> {
+    return request("/attack-surface/nuclei", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   },
 
   // Module G: Image Forensics & EXIF Analysis

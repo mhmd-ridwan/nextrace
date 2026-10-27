@@ -29,6 +29,7 @@ __pycache__/
 build/
 dist/
 *.egg-info/
+backend/bin/
 
 # Python Virtual Environments
 venv/
@@ -71,6 +72,7 @@ backend/uploads/*
 !backend/uploads/avatar_scraped_mhmmd_ridwan_01a7bb.jpg
 backend/reports/*.pdf
 backend/reports/*.json
+*.pdf
 backend/evidence_store/*
 !backend/evidence_store/.gitkeep
 !backend/reports/.gitkeep
@@ -89,3 +91,4 @@ skills.md
 *.swp
 *.swo
 *~
+*.pdf

@@ -586,5 +586,54 @@ export interface GlobalImageScanResponse {
   matched_profiles: MatchedProfile[];
 }
 
+// Module H: Attack Surface Management & Nuclei Scanner
+export interface SubdomainItem {
+  subdomain: string;
+  ip_addresses: string[];
+  status_code: number | null;
+  title: string | null;
+  server: string | null;
+  cname: string | null;
+  is_takeover_risk: boolean;
+  takeover_service: string | null;
+  is_live: boolean;
+}
+
+export interface SubdomainScanResponse {
+  target_domain: string;
+  total_found: number;
+  live_count: number;
+  takeover_risk_count: number;
+  subdomains: SubdomainItem[];
+  scanned_at: string;
+  execution_time_seconds: number;
+}
+
+export interface NucleiVulnerabilityItem {
+  template_id: string;
+  name: string;
+  severity: "info" | "low" | "medium" | "high" | "critical";
+  matched_at: string;
+  extracted_results: string[];
+  description: string | null;
+  cve_id: string | null;
+  type: string | null;
+  curl_command: string | null;
+  remediation: string | null;
+}
+
+export interface NucleiScanResponse {
+  target: string;
+  total_findings: number;
+  critical_count: number;
+  high_count: number;
+  medium_count: number;
+  low_count: number;
+  info_count: number;
+  findings: NucleiVulnerabilityItem[];
+  scanned_at: string;
+  execution_time_seconds: number;
+}
+
 
 
