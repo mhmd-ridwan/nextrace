@@ -6,7 +6,7 @@
 ### Sistem Terpadu Identifikasi Akun Tiruan, Analisis Buzzer & Pelacak Jejak Kebocoran Data
 **Enterprise-Grade Digital Identity Defense, Web OSINT & Cryptographic Evidence Platform**
 
-[![Backend Tests](https://img.shields.io/badge/pytest-36%20passed-10b981?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com)
+[![Backend Tests](https://img.shields.io/badge/pytest-40%20passed-10b981?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com)
 [![Code Quality](https://img.shields.io/badge/ruff-clean-06b6d4?style=for-the-badge&logo=python&logoColor=white)](https://github.com)
 [![TypeScript](https://img.shields.io/badge/typescript-strict%205.x-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-15%20App%20Router-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -38,7 +38,11 @@
    * **Forensik Gambar EXIF Metadata**: Ekstraksi perangkat keras kamera, optik, koordinat satelit GPS interaktif, serta indikator rekayasa perangkat lunak (*Photoshop/Lightroom tampering*).
    * **Pelacak Akun Tiruan Media Sosial**: Deteksi multi-sinyal akun kloning pada 5 platform utama (Instagram, TikTok, X/Twitter, Facebook, Telegram) dengan *Loupe Spektral Visual* dan sinkronisasi avatar akurat.
    * **Buzzer & Bot Hunter**: Pembongkaran jaringan komentar inautentik dan operasi astroturfing berbasis web scraping live tanpa rekayasa data.
-3. **Validasi Forensik Hukum (*Legal Chain-of-Custody*)**: Penyimpanan seluruh artefak digital ke dalam *Digital Evidence Vault* bersegel kriptografi SHA-256 yang *tamper-proof* serta generator berkas permohonan takedown resmi berstandar pengadilan (PDF & JSON).
+3. **Attack Surface Management & Kerentanan Web (*Nuclei & Subfinder*)**:
+   * **Enumerasi Subdomain Pasif**: Integrasi Subfinder CLI (v2.17.0) dan Certificate Transparency Logs (`crt.sh`) untuk memetakan seluruh aset eksternal tanpa memicu alarm target.
+   * **Deteksi Dangling CNAME Takeover**: Identifikasi dini rekod DNS tak bertuan yang rentan disandera peretas (*subdomain hijacking*).
+   * **Nuclei Vulnerability Scanner Engine**: Audit kerentanan berbasis template resmi ProjectDiscovery (v3.11.1) dengan filter keparahan (*Critical/High/Medium/Low*), reproduksi *curl PoC*, dan panduan remediasi.
+4. **Validasi Forensik Hukum (*Legal Chain-of-Custody*)**: Penyimpanan seluruh artefak digital ke dalam *Digital Evidence Vault* bersegel kriptografi SHA-256 yang *tamper-proof* serta generator berkas permohonan takedown resmi berstandar pengadilan (PDF & JSON).
 
 ---
 
@@ -59,19 +63,30 @@ Sistem pelacakan akun tiruan lintas platform (Instagram, TikTok, X, Facebook, Te
 
 ---
 
+### 4. Attack Surface Management & Nuclei Vulnerability Engine (`/domain`)
+Sistem terintegrasi 3-tab pada modul Domain: *Reputasi Domain & DNS*, *Subdomain Finder* (Subfinder + CT Logs), dan *Nuclei Vulnerability Scanner*. Dilengkapi peringatan kerentanan CNAME Takeover, ekstraksi token bocor, perintah `curl` reproduksi manual, serta tombol 1-klik segel ke Evidence Vault.
+
+---
+
+### 5. Pengalaman Mobile Komprehensif & Ultra-Responsif
+Optimalisasi tata letak penuh untuk perangkat bergerak: menu laci geser (*off-canvas drawer*) dengan backdrop blur, bilah navigasi atas responsif dengan toggle hamburger, tabel data dengan gulir horizontal (*horizontal touch scroll*), serta visualisasi graf SVG yang otomatis menyesuaikan lebar layar ponsel atau tablet.
+
+---
+
 ## 🚀 Fitur Utama
 
 ```mermaid
 flowchart LR
-    A["Target Input\n(User / URL / HP / Email / Foto)"] --> B{"NEXTRACE Core Engine"}
+    A["Target Input\n(User / URL / HP / Email / Foto / Domain)"] --> B{"NEXTRACE Core Engine"}
     B --> C["Visual Image OSINT & EXIF\n(pHash Global + GPS + Tamper Check)"]
     B --> D["Social Media Impersonator\n(5 Platforms + Homoglyph + Loupe)"]
     B --> E["Buzzer & Bot Hunter\n(Edge Headless + Polaris SSR)"]
     B --> F["Domain & Network OSINT\n(Audit Reputasi + DNS + WHOIS)"]
-    B --> G["Data Breach Tracer\n(Privacy-Preserving Masking)"]
-    B --> H["Smart Alias Telemetry\n(Vendor-Isolated Inbound Events)"]
-    C & D & E & F & G & H --> I["Digital Evidence Locker\n(SHA-256 Custody Append-Only Log)"]
-    I --> J["Automated Takedown Dossier\n(Legal PDF & Structured JSON)"]
+    B --> G["Attack Surface & Nuclei Engine\n(Subfinder + Takeover + Vulnerability)"]
+    B --> H["Data Breach Tracer\n(Privacy-Preserving Masking)"]
+    B --> I["Smart Alias Telemetry\n(Vendor-Isolated Inbound Events)"]
+    C & D & E & F & G & H & I --> J["Digital Evidence Locker\n(SHA-256 Custody Append-Only Log)"]
+    J --> K["Automated Takedown Dossier\n(Legal PDF & Structured JSON)"]
 ```
 
 ### 1. 🖼️ Analisis Gambar & Forensik EXIF Metadata (`/analisis-gambar`)
@@ -107,23 +122,44 @@ flowchart LR
 * **Introspeksi DNS Records:** Resolusi rekod DNS lengkap (A, AAAA, MX, TXT, NS, CNAME) secara *real-time*.
 * **WHOIS Registrar Intelligence:** Pengambilan data registrasi domain, tanggal pembuatan, kedaluwarsa, registrar resmi, dan status *domain privacy*.
 
-### 5. 🛡️ Data Breach Intelligence & Leak Tracer (`/leak-tracer`, `/email`, `/nomor-hp`)
+### 5. 🛡️ Attack Surface Management & Nuclei Vulnerability Scanner (`/domain`)
+Terintegrasi langsung dalam tab **Subdomain Finder** dan **Nuclei Scanner** pada modul Domain:
+* **Dual-Engine Subdomain Discovery:**
+  * **Subfinder CLI Engine (v2.17.0):** Pemindaian subdomain pasif berskala besar melalui rekod publik, mesin pencari, dan certificate transparency.
+  * **Passive Certificate Transparency Logs (`crt.sh`):** Ekstraksi entri sertifikat SSL/TLS historis dan aktif secara langsung via API non-intrusif tanpa memicu alert target.
+* **Automated Dangling CNAME Takeover Detection:**
+  * Analisis rekod CNAME terhadap penyedia layanan cloud ternama (GitHub Pages, AWS S3, Heroku, Vercel, Microsoft Azure, Fastly, Shopify, Zendesk, dsb.).
+  * Deteksi dini kerentanan pengambilalihan subdomain (*subdomain hijacking*) akibat DNS yang masih mengarah ke bucket/layanan yang telah dihapus (*dangling CNAME pointer*).
+* **Nuclei Vulnerability Scanner (v3.11.1):**
+  * Terintegrasi dengan ribuan template resmi ProjectDiscovery (`nuclei-templates`).
+  * Filter tingkat keparahan (*severity*): `Critical`, `High`, `Medium`, `Low`, `Info`.
+  * Kategori pengujian terarah (*targeted tags*): `exposure` (kebocoran token/.env/git), `misconfig` (salah konfigurasi server), `takeover`, `panel` (antarmuka admin terbuka), dan `cve` (kerentanan teregistrasi).
+  * **Reproducible Proof-of-Concept:** Menampilkan perintah `curl` lengkap untuk memverifikasi temuan secara manual tanpa ketergantungan tool.
+  * **Rekomendasi Remediasi:** Panduan langkah perbaikan konkret bagi tim keamanan/DevOps.
+  * **Segel Kriptografi 1-Klik:** Tombol instan untuk mengamankan temuan kerentanan ke *Digital Evidence Locker* dengan hash SHA-256 dan pembuatan berkas laporan hukum.
+
+### 6. 🛡️ Data Breach Intelligence & Leak Tracer (`/leak-tracer`, `/email`, `/nomor-hp`)
 * **Privacy-Preserving Identifier Check:** Pengecekan paparan identitas (Email, Nomor HP, atau SHA-256 Hash) dengan sanitasi dan masking otomatis (contoh: `d***o@example.com` / `+62 812-****-1122`).
 * **Database Insiden Indonesia:** Database lokal insiden kebocoran data terkonfirmasi lintas sektor strategis (Fintech, Healthcare, E-Commerce, Pemerintahan, Telekomunikasi).
 * **Transparent 4-Factor Risk Engine:** Penilaian risiko transparan berdasarkan independensi insiden, bobot sensitivitas data (NIK, Rekening Bank, Rekam Medis), variasi sumber, dan eksposur kata sandi.
 
-### 6. ✉️ Trackable Isolated Smart Alias (`/smart-alias`)
+### 7. ✉️ Trackable Isolated Smart Alias (`/smart-alias`)
 * **Vendor-Specific Isolation:** Pembuatan alias email terlacak khusus mitra/vendor (`user+vendor_tag@domain`).
 * **Inbound Leak Attribution:** Pencatatan event email masuk yang tidak sah untuk membuktikan secara forensik vendor mana yang mengalami kebocoran data atau menyalahgunakan kontak.
 
-### 7. 🔒 Digital Evidence Locker & Chain-of-Custody (`/evidence`, `/hash`)
+### 8. 🔒 Digital Evidence Locker & Chain-of-Custody (`/evidence`, `/hash`)
 * **Cryptographic Tamper-Proofing:** Setiap file barang bukti (foto, tangkapan layar, arsip JSON) langsung dihitung nilai hash SHA-256 saat diakuisisi.
 * **Immutable Custody Trail:** Catatan rantai ketelusuran (*chain-of-custody*) yang bersifat *append-only* untuk kebutuhan pembuktian hukum.
 * **Instant Verification API:** Validasi ulang integritas fisik file secara langsung (`GET /api/v1/evidence/{id}/verify`) untuk membuktikan keaslian berkas.
 
-### 8. 📑 Automated Legal Takedown Dossier (`/reports`)
+### 9. 📑 Automated Legal Takedown Dossier (`/reports`)
 * **Dual Output (PDF & JSON):** Generator berkas permohonan takedown instan menggunakan mesin **ReportLab** untuk PDF A4 berstandar pengadilan dan skema terstruktur JSON.
 * **Legal Disclaimer & Affidavits:** Dilengkapi klausa yuridis resmi (status DRAFT yang mewajibkan verifikasi akhir manusia), manifest rincian bukti, dan kontak resmi *abuse team* platform.
+
+### 10. 📱 Mobile-First Responsive Design & Adaptive Layout
+* **Sliding Navigation Drawer:** Navigasi sidebar laci samping yang mulus dengan dukungan backdrop blur dan penutupan otomatis saat memilih modul di perangkat seluler.
+* **Touch-Friendly Triage Tables:** Tabel triage investigasi dengan kontainer `overflow-x-auto` dan ruang sentuh jari yang lega tanpa tumpang tindih kolom.
+* **Fluid Network Topology:** Visualisasi graf jaringan buzzer SVG dan relasi node yang responsif secara dinamis mengikuti orientasi potret/lanskap ponsel dan tablet.
 
 ---
 
@@ -135,8 +171,9 @@ NEXTRACE dibangun dengan standar **Clean Architecture & Anti-Slop Protocol**: pe
 nextrace/
 ├── backend/                             # Backend API Server (FastAPI + SQLAlchemy 2.0 Async)
 │   ├── app/
-│   │   ├── api/v1/endpoints/            # 55 REST API Endpoints modular:
+│   │   ├── api/v1/endpoints/            # 57 REST API Endpoints modular:
 │   │   │   ├── aliases.py               # Vendor Smart Aliases & Inbound Events
+│   │   │   ├── attack_surface.py        # Subdomain Discovery & Nuclei Vulnerability Engine
 │   │   │   ├── buzzer.py                # Buzzer & Comment Astroturfing Scanner
 │   │   │   ├── evidence.py              # SHA-256 Digital Vault & Chain-of-Custody
 │   │   │   ├── health.py                # Liveness & Readiness Probes
@@ -149,9 +186,10 @@ nextrace/
 │   │   ├── core/                        # Security, Config, Exceptions, Logging
 │   │   ├── db/                          # Async Engine, Migrations, Seeders
 │   │   ├── models/                      # SQLAlchemy 2.0 Async ORM Models
-│   │   ├── schemas/                     # Strict Pydantic v2 Contracts
+│   │   ├── schemas/                     # Strict Pydantic v2 Contracts (incl. attack_surface.py)
 │   │   └── services/                    # Core Forensic Engines:
 │   │       ├── alias_service.py         # Vendor-Isolated Telemetry
+│   │       ├── attack_surface_service.py # Subfinder, CNAME Takeover & Nuclei Orchestrator
 │   │       ├── breach_service.py        # Multi-Sector Leak Intelligence
 │   │       ├── buzzer_service.py        # Headless Scraping & Polaris Parser
 │   │       ├── evidence_service.py      # SHA-256 Vault & Verifier
@@ -166,7 +204,9 @@ nextrace/
 │   │       ├── report_service.py        # Legal PDF Takedown Builder
 │   │       ├── risk_engine.py           # Transparent 4-Factor Risk Engine
 │   │       └── username_similarity.py   # Levenshtein & Normalization
-│   └── tests/                           # Pytest Automated Test Suite (36 tests passing)
+│   └── tests/                           # Pytest Automated Test Suite (40 tests passing)
+│       ├── integration/                 # API lifecycle & contract tests
+│       └── unit/                        # Unit tests (incl. test_attack_surface.py)
 │
 └── frontend/                            # Frontend SPA (Next.js 15 App Router)
     ├── app/                             # Route Pages:
@@ -204,6 +244,8 @@ nextrace/
 | **Forensic Vision** | Pillow + ImageHash | Algoritma pHash (DCT), dHash, ekstraksi tag EXIF kamera, koordinat GPS, mitigasi bomb |
 | **Text Analytics** | RapidFuzz + Unicode Unicodedata | Levenshtein distance, token sort ratio, pemetaan homoglyph lintas aksara (Cyrillic/Greek/Latin) |
 | **Headless OSINT** | Microsoft Edge Headless CLI | Rendering DOM dinamis tanpa beban berat Selenium/Puppeteer |
+| **Attack Surface** | Subfinder CLI v2.17 + crt.sh CT Logs | Enumerasi subdomain pasif non-intrusif & deteksi pengambilalihan CNAME dangling |
+| **Vulnerability Scanning** | Nuclei Engine v3.11.1 | Pemindaian kerentanan berbasis template resmi ProjectDiscovery dengan filter severity |
 | **Dokumentasi PDF** | ReportLab | Mesin kompilasi dokumen permohonan takedown resmi A4 berstandar pengadilan |
 
 ---
@@ -278,7 +320,7 @@ docker-compose up --build -d
 
 ## 📡 Katalog API Endpoints
 
-Seluruh API menggunakan awalan `/api/v1` dengan respon berformat JSON terstruktur (Total **55 REST Endpoints**):
+Seluruh API menggunakan awalan `/api/v1` dengan respon berformat JSON terstruktur (Total **57 REST Endpoints**):
 
 | Modul | Method | Endpoint | Deskripsi Fungsi |
 | :--- | :---: | :--- | :--- |
@@ -307,6 +349,8 @@ Seluruh API menggunakan awalan `/api/v1` dengan respon berformat JSON terstruktu
 | **Network**| `POST` | `/api/v1/network/domain-audit` | Audit reputasi domain, punycode, dan indikator phishing |
 | **Network**| `GET` | `/api/v1/network/dns` | Resolusi rekod DNS lengkap (A, MX, TXT, NS, CNAME) |
 | **Network**| `GET` | `/api/v1/network/whois` | Lookup data registrasi WHOIS dan informasi registrar |
+| **Attack Surface** | `POST` | `/api/v1/attack-surface/subdomains` | Enumerasi subdomain via Subfinder & Passive CT Logs crt.sh serta deteksi Dangling CNAME Takeover |
+| **Attack Surface** | `POST` | `/api/v1/attack-surface/nuclei` | Pindai kerentanan web terarah menggunakan Nuclei Engine v3.11.1 dengan filter severity & tags |
 | **Leak** | `POST` | `/api/v1/leak/check` | Pemeriksaan paparan data (Email, Nomor HP, SHA-256) |
 | **Leak** | `GET` | `/api/v1/leak/incidents` | Riwayat katalog insiden kebocoran data terdokumentasi |
 | **Alias** | `POST` | `/api/v1/aliases/generate` | Pembuatan email alias terlacak untuk vendor mitra |
@@ -333,46 +377,50 @@ pytest -v
 ```text
 ============================= test session starts =============================
 platform win32 -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0
-collected 36 items
+collected 40 items
 
 tests/integration/test_buzzer_api.py::TestBuzzerAPI::test_buzzer_scan_lifecycle PASSED [  2%]
 tests/integration/test_evidence_report_api.py::TestEvidenceAndReportAPI::test_investigation_lifecycle_and_timeline PASSED [  5%]
-tests/integration/test_evidence_report_api.py::TestEvidenceAndReportAPI::test_generate_and_download_pdf_report PASSED [  8%]
-tests/integration/test_evidence_report_api.py::TestEvidenceAndReportAPI::test_generate_json_report PASSED [ 11%]
-tests/integration/test_impersonator_api.py::TestImpersonatorAPI::test_baseline_creation_and_scan PASSED [ 13%]
-tests/integration/test_leak_api.py::TestLeakAPI::test_matching_synthetic_identifier PASSED [ 16%]
-tests/integration/test_leak_api.py::TestLeakAPI::test_no_match_result PASSED [ 19%]
-tests/integration/test_leak_api.py::TestLeakAPI::test_invalid_identifier_validation PASSED [ 22%]
-tests/integration/test_leak_api.py::TestLeakAPI::test_alias_creation_uniqueness PASSED [ 25%]
-tests/integration/test_leak_api.py::TestLeakAPI::test_inbound_event_mapped_to_alias PASSED [ 27%]
-tests/unit/test_buzzer_report.py::test_buzzer_threat_dossier_pdf_generation PASSED [ 30%]
-tests/unit/test_buzzer_report.py::test_evidence_service_push_with_auto_investigation PASSED [ 33%]
-tests/unit/test_image_similarity.py::TestImageSimilarity::test_identical_image PASSED [ 36%]
-tests/unit/test_image_similarity.py::TestImageSimilarity::test_resized_image PASSED [ 38%]
-tests/unit/test_image_similarity.py::TestImageSimilarity::test_compressed_image PASSED [ 41%]
-tests/unit/test_image_similarity.py::TestImageSimilarity::test_visually_different_image PASSED [ 44%]
-tests/unit/test_image_similarity.py::TestImageSimilarity::test_invalid_image_upload PASSED [ 47%]
-tests/unit/test_image_similarity.py::TestImageSimilarity::test_correct_hamming_distance_calculation PASSED [ 50%]
-tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_ordinary_public_website PASSED [ 52%]
-tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_shortened_url PASSED [ 55%]
-tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_punycode_domain PASSED [ 58%]
-tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_suspicious_redirect_parameter PASSED [ 61%]
-tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_malformed_url PASSED [ 63%]
-tests/unit/test_network_osint.py::test_clean_domain_sanitization PASSED  [ 66%]
-tests/unit/test_network_osint.py::test_government_domain_reputation PASSED [ 69%]
-tests/unit/test_network_osint.py::test_fresh_phishing_domain_reputation PASSED [ 72%]
-tests/unit/test_network_osint.py::test_whois_field_parsing PASSED        [ 75%]
-tests/unit/test_risk_engine.py::TestRiskEngine::test_impersonation_risk_critical PASSED [ 77%]
-tests/unit/test_risk_engine.py::TestRiskEngine::test_impersonation_risk_low PASSED [ 80%]
-tests/unit/test_risk_engine.py::TestRiskEngine::test_breach_risk_assessment_with_credentials PASSED [ 83%]
-tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_exact_match PASSED [ 86%]
-tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_single_character_substitution PASSED [ 88%]
-tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_character_confusable_homoglyph PASSED [ 91%]
-tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_similar_legitimate_username PASSED [ 94%]
+tests/integration/test_evidence_report_api.py::TestEvidenceAndReportAPI::test_generate_and_download_pdf_report PASSED [  7%]
+tests/integration/test_evidence_report_api.py::TestEvidenceAndReportAPI::test_generate_json_report PASSED [ 10%]
+tests/integration/test_impersonator_api.py::TestImpersonatorAPI::test_baseline_creation_and_scan PASSED [ 12%]
+tests/integration/test_leak_api.py::TestLeakAPI::test_matching_synthetic_identifier PASSED [ 15%]
+tests/integration/test_leak_api.py::TestLeakAPI::test_no_match_result PASSED [ 17%]
+tests/integration/test_leak_api.py::TestLeakAPI::test_invalid_identifier_validation PASSED [ 20%]
+tests/integration/test_leak_api.py::TestLeakAPI::test_alias_creation_uniqueness PASSED [ 22%]
+tests/integration/test_leak_api.py::TestLeakAPI::test_inbound_event_mapped_to_alias PASSED [ 25%]
+tests/unit/test_attack_surface.py::test_clean_target_hostname PASSED     [ 27%]
+tests/unit/test_attack_surface.py::test_subdomain_models PASSED          [ 30%]
+tests/unit/test_attack_surface.py::test_nuclei_models PASSED             [ 32%]
+tests/unit/test_attack_surface.py::test_native_exposure_probe_empty_on_offline PASSED [ 35%]
+tests/unit/test_buzzer_report.py::test_buzzer_threat_dossier_pdf_generation PASSED [ 37%]
+tests/unit/test_buzzer_report.py::test_evidence_service_push_with_auto_investigation PASSED [ 40%]
+tests/unit/test_image_similarity.py::TestImageSimilarity::test_identical_image PASSED [ 42%]
+tests/unit/test_image_similarity.py::TestImageSimilarity::test_resized_image PASSED [ 45%]
+tests/unit/test_image_similarity.py::TestImageSimilarity::test_compressed_image PASSED [ 47%]
+tests/unit/test_image_similarity.py::TestImageSimilarity::test_visually_different_image PASSED [ 50%]
+tests/unit/test_image_similarity.py::TestImageSimilarity::test_invalid_image_upload PASSED [ 52%]
+tests/unit/test_image_similarity.py::TestImageSimilarity::test_correct_hamming_distance_calculation PASSED [ 55%]
+tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_ordinary_public_website PASSED [ 57%]
+tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_shortened_url PASSED [ 60%]
+tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_punycode_domain PASSED [ 62%]
+tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_suspicious_redirect_parameter PASSED [ 65%]
+tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_malformed_url PASSED [ 67%]
+tests/unit/test_network_osint.py::test_clean_domain_sanitization PASSED  [ 70%]
+tests/unit/test_network_osint.py::test_government_domain_reputation PASSED [ 72%]
+tests/unit/test_network_osint.py::test_fresh_phishing_domain_reputation PASSED [ 75%]
+tests/unit/test_network_osint.py::test_whois_field_parsing PASSED        [ 77%]
+tests/unit/test_risk_engine.py::TestRiskEngine::test_impersonation_risk_critical PASSED [ 80%]
+tests/unit/test_risk_engine.py::TestRiskEngine::test_impersonation_risk_low PASSED [ 82%]
+tests/unit/test_risk_engine.py::TestRiskEngine::test_breach_risk_assessment_with_credentials PASSED [ 85%]
+tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_exact_match PASSED [ 87%]
+tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_single_character_substitution PASSED [ 90%]
+tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_character_confusable_homoglyph PASSED [ 92%]
+tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_similar_legitimate_username PASSED [ 95%]
 tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_suspicious_suffix PASSED [ 97%]
 tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_unicode_normalization PASSED [100%]
 
-============================= 36 passed in 21.08s =============================
+============================= 40 passed in 58.91s =============================
 ```
 
 ### 2. Pemeriksaan Statis Kode Python (Ruff)

@@ -4,13 +4,20 @@ Generates a clean, simple, and professional A4 PDF guide for teammates and analy
 """
 
 from pathlib import Path
-from reportlab.lib.pagesizes import A4
+
 from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image, KeepTogether, HRFlowable
-)
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.pdfgen import canvas
+from reportlab.platypus import (
+    HRFlowable,
+    Image,
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
+)
 
 
 class NumberedCanvas(canvas.Canvas):
@@ -73,7 +80,6 @@ def build_pdf(output_path: str):
     # Custom typography styles
     c_dark = colors.HexColor("#0f172a")
     c_blue = colors.HexColor("#1e40af")
-    c_sky = colors.HexColor("#0284c7")
     c_mute = colors.HexColor("#475569")
     c_line = colors.HexColor("#cbd5e1")
     c_bg_box = colors.HexColor("#f8fafc")
@@ -187,7 +193,6 @@ def build_pdf(output_path: str):
     # ─────────────────────────────────────────────────────────────
     logo_path = Path(r"C:\Users\Administrator\Documents\project\nextrace\frontend\public\logo.png")
     
-    header_data = []
     if logo_path.exists():
         img = Image(str(logo_path), width=48, height=48)
         header_text = [
