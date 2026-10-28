@@ -27,6 +27,7 @@ import {
   SubdomainScanResponse,
   SystemInfo,
 } from "@/types";
+import type { AuthUser } from "@/lib/auth";
 
 let API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -610,5 +611,67 @@ export const api = {
     const filename = clean.split("/").pop();
     const backendRoot = BACKEND_BASE_URL.replace(/\/api\/v1\/?$/, "");
     return `${backendRoot}/uploads/${filename}`;
+  },
+
+  // Module Auth & User Management (Admin)
+  async getUsers(): Promise<AuthUser[]> {
+    return request("/auth/users");
+  },
+
+  async createUser(data: {
+    username: string;
+    email: string;
+    password: string;
+    full_name?: string;
+    role?: string;
+  }): Promise<AuthUser> {
+    return request("/auth/users", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateUser(
+    userId: string,
+    data: {
+      full_name?: string;
+      email?: string;
+      role?: string;
+      is_active?: boolean;
+    }
+  ): Promise<AuthUser> {
+    return request(`/auth/users/${userId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  },
+
+  async adminResetPassword(
+    userId: string,
+    newPassword: string
+  ): Promise<{ success: boolean; message: string }> {
+    return request(`/auth/users/${userId}/reset-password`, {
+      method: "POST",
+      body: JSON.stringify({ new_password: newPassword }),
+    });
+  },
+
+  async deleteUser(userId: string): Promise<{ success: boolean; message: string }> {
+    return request(`/auth/users/${userId}`, {
+      method: "DELETE",
+    });
+  },
+
+  async changePassword(
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; message: string }> {
+    return request("/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+      }),
+    });
   },
 };

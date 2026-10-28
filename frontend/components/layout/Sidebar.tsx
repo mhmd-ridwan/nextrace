@@ -16,8 +16,10 @@ import {
   Hash,
   Search,
   X,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
 
 interface NavItem {
   name: string;
@@ -38,6 +40,10 @@ const mainNav: NavItem[] = [
   { name: "Laporan", href: "/reports", icon: FileText },
 ];
 
+const adminNav: NavItem[] = [
+  { name: "Manajemen User", href: "/admin/users", icon: ShieldCheck },
+];
+
 const quickTools: NavItem[] = [
   { name: "Hash", href: "/hash", icon: Hash },
   { name: "WHOIS", href: "/whois", icon: Search },
@@ -51,6 +57,8 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   // Close sidebar on mobile when route changes
   useEffect(() => {
@@ -158,6 +166,46 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 </Link>
               );
             })}
+
+            {isAdmin && (
+              <>
+                <p className="mt-5 mx-2.5 mb-1.5 text-[11px] font-semibold text-[var(--mute)] uppercase tracking-wider border-t border-[var(--line)] pt-4">
+                  Administrasi
+                </p>
+                {adminNav.map((item) => {
+                  const Icon = item.icon;
+                  const active = isCurrent(item.href);
+
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={handleLinkClick}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "flex items-center gap-3 px-2.5 py-2 rounded-[6px] text-[13.5px] transition-colors group select-none",
+                        active
+                          ? "bg-[var(--s2)] text-[var(--ink)] font-semibold shadow-[inset_2px_0_var(--hi)]"
+                          : "text-[var(--mute)] hover:bg-[var(--s2)] hover:text-[var(--ink)] font-medium"
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          "w-[18px] h-[18px] shrink-0 stroke-[1.7]",
+                          active ? "text-[var(--hi)]" : "text-[var(--mute)] group-hover:text-[var(--ink)]"
+                        )}
+                      />
+                      <span className="flex-1 truncate">{item.name}</span>
+                      {item.badge && (
+                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[var(--hi)]/15 text-[var(--hi)] font-semibold border border-[var(--hi)]/25">
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </>
+            )}
 
             <p className="mt-5 mx-2.5 mb-1.5 text-[12px] text-[var(--mute)] border-t border-[var(--line)] pt-4 font-normal">
               Alat cepat

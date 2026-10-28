@@ -8,7 +8,13 @@ from app.core.security import (
     verify_password,
 )
 from app.models.user import UserRole
-from app.schemas.auth import LoginRequest, TokenResponse, UserProfile
+from app.schemas.auth import (
+    AdminResetPasswordRequest,
+    LoginRequest,
+    TokenResponse,
+    UserProfile,
+    UserUpdateRequest,
+)
 
 
 def test_password_hashing_and_verification():
@@ -63,3 +69,18 @@ def test_auth_schemas_validation():
     )
     assert token_resp.token_type == "bearer"
     assert token_resp.user.email == "owner@taya.web.id"
+
+
+def test_admin_user_management_schemas():
+    update_req = UserUpdateRequest(
+        full_name="Budi Hacker",
+        role=UserRole.VIEWER,
+        is_active=False,
+    )
+    assert update_req.full_name == "Budi Hacker"
+    assert update_req.role == UserRole.VIEWER
+    assert update_req.is_active is False
+
+    reset_req = AdminResetPasswordRequest(new_password="NewSecurePass2026!")
+    assert reset_req.new_password == "NewSecurePass2026!"
+

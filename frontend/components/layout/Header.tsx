@@ -13,6 +13,7 @@ import {
   Menu,
   LogOut,
   KeyRound,
+  ShieldCheck,
 } from "lucide-react";
 import { useAuth, getRoleBadge } from "@/lib/auth";
 
@@ -283,6 +284,15 @@ export function Header({ onOpenMobileMenu }: HeaderProps) {
             >
               <Shield className="w-3.5 h-3.5" /> Ruang Kerja Kasus
             </Link>
+            {user?.role === "admin" && (
+              <Link
+                href="/admin/users"
+                onClick={() => setShowUserMenu(false)}
+                className="flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded text-[var(--hi)] hover:bg-[var(--hi)]/10 font-semibold"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" /> Manajemen User
+              </Link>
+            )}
             <Link
               href="/settings"
               onClick={() => setShowUserMenu(false)}
