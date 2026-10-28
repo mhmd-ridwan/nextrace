@@ -1,27 +1,24 @@
 <div align="center">
 
-<img src="frontend/public/logo.png" alt="NEXTRACE Logo" width="220" />
+<img src="frontend/public/logo.png" alt="NEXTRACE Logo" width="210" />
 
 # NEXTRACE
-### Sistem Terpadu Identifikasi Akun Tiruan, Analisis Buzzer & Pelacak Jejak Kebocoran Data
-**Enterprise-Grade Digital Identity Defense, Web OSINT & Cryptographic Evidence Platform**
+### Platform Pertahanan Identitas Digital, Web OSINT & Forensik Bukti Kriptografis
+**Enterprise-Grade Digital Identity Defense, Attack Surface Intelligence & Cryptographic Evidence Vault**
 
-[![Backend Tests](https://img.shields.io/badge/pytest-40%20passed-10b981?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com)
-[![Code Quality](https://img.shields.io/badge/ruff-clean-06b6d4?style=for-the-badge&logo=python&logoColor=white)](https://github.com)
-[![TypeScript](https://img.shields.io/badge/typescript-strict%205.x-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-15%20App%20Router-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Security](https://img.shields.io/badge/Zero--PII-Privacy--Preserving-f59e0b?style=for-the-badge&logo=shield&logoColor=white)](https://github.com)
+[![Next.js](https://img.shields.io/badge/Next.js-15%20App%20Router-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict%205.x-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Python](https://img.shields.io/badge/Python-3.12%20%2F%203.14-3776ab?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![Security](https://img.shields.io/badge/Zero--PII-Privacy--Preserving-10b981?style=flat-square&logo=shield)](https://github.com)
 
 <p align="center">
   <a href="#-ringkasan-eksekutif">Ringkasan Eksekutif</a> •
-  <a href="#-antarmuka-pengguna-visual-showcase">Tampilan Sistem</a> •
   <a href="#-fitur-utama">Fitur Utama</a> •
   <a href="#-arsitektur--teknologi">Arsitektur</a> •
-  <a href="#-panduan-instalasi--menjalankan">Instalasi</a> •
-  <a href="#-katalog-api-endpoints">API Endpoints</a> •
-  <a href="#-pengujian--verifikasi">Pengujian</a> •
-  <a href="#-standar-forensik--disclaimer">Etika Forensik</a>
+  <a href="#-panduan-instalasi">Instalasi</a> •
+  <a href="#-katalog-api-endpoints">Katalog API</a> •
+  <a href="#-standar-forensik--legal-disclaimer">Etika Forensik</a>
 </p>
 
 </div>
@@ -30,46 +27,20 @@
 
 ## 📌 Ringkasan Eksekutif
 
-**NEXTRACE** adalah platform pertahanan identitas digital dan intelijen sumber terbuka (*Open-Source Intelligence* / OSINT) tingkat lanjut. Dirancang khusus bagi analis keamanan siber, penyelidik kejahatan siber (*cybercrime investigators*), dan tim kepatuhan korporat untuk menanggulangi ancaman identitas digital modern:
+**NEXTRACE** adalah platform investigasi identitas digital dan *Open-Source Intelligence* (OSINT) tingkat enterprise. Dirancang untuk analis keamanan siber, penyelidik tindak pidana siber, dan tim kepatuhan korporat guna mendeteksi ancaman akun tiruan (*impersonation*), membongkar operasi manipulasi opini publik (*astroturfing buzzer*), memetakan celah serangan eksternal (*attack surface*), serta melacak kebocoran data (*data breach*) secara sah dan terstandarisasi.
 
-1. **Penangkalan Preventif (*Proactive Defense*)**: Pelacakan jejak paparan data pribadi (*Data Breach Intelligence*), pengisolasian identitas vendor melalui *Smart Alias Tracking*, audit reputasi domain/phishing, serta peringatan dini eksfiltrasi kredensial.
-2. **Penindakan Responsif & Visual OSINT (*Active Threat Hunting*)**: 
-   * **Pencarian Profil Global Visual (pHash DCT)**: Cukup unggah 1 foto untuk memindai dan mencocokkan profil peniru secara otomatis di seluruh jejaring media sosial global.
-   * **Forensik Gambar EXIF Metadata**: Ekstraksi perangkat keras kamera, optik, koordinat satelit GPS interaktif, serta indikator rekayasa perangkat lunak (*Photoshop/Lightroom tampering*).
-   * **Pelacak Akun Tiruan Media Sosial**: Deteksi multi-sinyal akun kloning pada 5 platform utama (Instagram, TikTok, X/Twitter, Facebook, Telegram) dengan *Loupe Spektral Visual* dan sinkronisasi avatar akurat.
-   * **Buzzer & Bot Hunter**: Pembongkaran jaringan komentar inautentik dan operasi astroturfing berbasis web scraping live tanpa rekayasa data.
-3. **Attack Surface Management & Kerentanan Web (*Nuclei & Subfinder*)**:
-   * **Enumerasi Subdomain Pasif**: Integrasi Subfinder CLI (v2.17.0) dan Certificate Transparency Logs (`crt.sh`) untuk memetakan seluruh aset eksternal tanpa memicu alarm target.
-   * **Deteksi Dangling CNAME Takeover**: Identifikasi dini rekod DNS tak bertuan yang rentan disandera peretas (*subdomain hijacking*).
-   * **Nuclei Vulnerability Scanner Engine**: Audit kerentanan berbasis template resmi ProjectDiscovery (v3.11.1) dengan filter keparahan (*Critical/High/Medium/Low*), reproduksi *curl PoC*, dan panduan remediasi.
-4. **Validasi Forensik Hukum (*Legal Chain-of-Custody*)**: Penyimpanan seluruh artefak digital ke dalam *Digital Evidence Vault* bersegel kriptografi SHA-256 yang *tamper-proof* serta generator berkas permohonan takedown resmi berstandar pengadilan (PDF & JSON).
+### Pilar Utama Kapabilitas
 
----
-
-## 📸 Antarmuka Pengguna (Visual Showcase)
-
-### 1. Omni-Scanner & Dashboard Pusat Investigasi
-Navigasi terpadu dengan identitas **Admin Nextrace**, indikator jam sinkron animasi *real-time* (`tabular-nums font-mono`) berikon kalender, serta kolom pencarian global (Omni-Scanner) untuk pemindaian lintas modul: Username, Tautan Media Sosial, Nomor HP, Email, Domain, maupun Foto Target.
-
----
-
-### 2. Buzzer & Bot Hunter — Live Headless Web Audit
-Ekstraksi 100% data riil dari web publik menggunakan Edge Headless OSINT dan parser Polaris SSR hydration. Dilengkapi metrik keterlibatan terverifikasi (*likes* & *comments*) dengan tata letak ikon sejajar presisi, visualisasi graf relasi interaktif (*curved fluid graph*), dan deteksi kluster *copypasta* astroturfing.
-
----
-
-### 3. Impersonation Hunter & Media Sosial — Triage Multi-Platform
-Sistem pelacakan akun tiruan lintas platform (Instagram, TikTok, X, Facebook, Telegram) dengan tabel triage lega, indikator bar aktif aksen vertikal, modal OSINT gelap berstandar enterprise, serta panel *Loupe Spektral Visual* (pHash DCT 64-bit) yang menyandingkan profil acuan resmi dan suspek secara akurat.
-
----
-
-### 4. Attack Surface Management & Nuclei Vulnerability Engine (`/domain`)
-Sistem terintegrasi 3-tab pada modul Domain: *Reputasi Domain & DNS*, *Subdomain Finder* (Subfinder + CT Logs), dan *Nuclei Vulnerability Scanner*. Dilengkapi peringatan kerentanan CNAME Takeover, ekstraksi token bocor, perintah `curl` reproduksi manual, serta tombol 1-klik segel ke Evidence Vault.
-
----
-
-### 5. Pengalaman Mobile Komprehensif & Ultra-Responsif
-Optimalisasi tata letak penuh untuk perangkat bergerak: menu laci geser (*off-canvas drawer*) dengan backdrop blur, bilah navigasi atas responsif dengan toggle hamburger, tabel data dengan gulir horizontal (*horizontal touch scroll*), serta visualisasi graf SVG yang otomatis menyesuaikan lebar layar ponsel atau tablet.
+1. **Investigasi Visual & Forensik Metadata (Visual OSINT)**
+   Pencocokan profil peniru di seluruh jejaring sosial global berbasis algoritma *perceptual hash* (pHash DCT 64-bit) dan audit forensik metadata EXIF citra (perangkat kamera, lensa, telemetri satelit GPS, serta indikator rekayasa digital Photoshop/Lightroom).
+2. **Pelacak Akun Tiruan Multi-Platform (Impersonator Hunter)**
+   Deteksi dini akun kloning pada 5 platform utama (Instagram, TikTok, X/Twitter, Facebook, Telegram) dengan analisis leksikal homoglyph Unicode, tautan bio, dan komparasi spektral avatar resmi vs suspek.
+3. **Pembongkaran Operasi Buzzer & Bot (Headless Scraping & Astroturfing)**
+   Ekstraksi data publik real-time menggunakan arsitektur headless browser dan parser Polaris SSR tanpa bergantung pada API berbayar. Dilengkapi pengelompokan teks *copypasta* dan pemetaan graf relasi interaktif.
+4. **Attack Surface Management & Nuclei Engine v3.11**
+   Enumerasi subdomain pasif melalui Subfinder CLI dan Certificate Transparency logs (`crt.sh`), deteksi dini kerentanan *dangling CNAME takeover*, audit kerentanan terarah ProjectDiscovery Nuclei, serta modul khusus *WordPress Security Recon* dengan streaming log terminal interaktif via Server-Sent Events (SSE).
+5. **Integritas Rantai Bukti Hukum (Digital Evidence Vault)**
+   Penyegelan seluruh artefak digital menggunakan stempel kriptografi SHA-256 (*tamper-proof chain-of-custody*) dan generator otomatis berkas permohonan *takedown* resmi berstandar hukum (PDF & JSON).
 
 ---
 
@@ -78,103 +49,89 @@ Optimalisasi tata letak penuh untuk perangkat bergerak: menu laci geser (*off-ca
 ```mermaid
 flowchart LR
     A["Target Input\n(User / URL / HP / Email / Foto / Domain)"] --> B{"NEXTRACE Core Engine"}
-    B --> C["Visual Image OSINT & EXIF\n(pHash Global + GPS + Tamper Check)"]
+    B --> C["Visual Image OSINT & EXIF\n(pHash Global + GPS + Tamper Audit)"]
     B --> D["Social Media Impersonator\n(5 Platforms + Homoglyph + Loupe)"]
     B --> E["Buzzer & Bot Hunter\n(Edge Headless + Polaris SSR)"]
     B --> F["Domain & Network OSINT\n(Audit Reputasi + DNS + WHOIS)"]
-    B --> G["Attack Surface & Nuclei Engine\n(Subfinder + Takeover + Vulnerability)"]
-    B --> H["Data Breach Tracer\n(Privacy-Preserving Masking)"]
+    B --> G["Attack Surface & Nuclei Engine\n(Subfinder + WP Recon + Live SSE)"]
+    B --> H["Data Breach Tracer\n(Zero-PII Masking & Risk Score)"]
     B --> I["Smart Alias Telemetry\n(Vendor-Isolated Inbound Events)"]
     C & D & E & F & G & H & I --> J["Digital Evidence Locker\n(SHA-256 Custody Append-Only Log)"]
     J --> K["Automated Takedown Dossier\n(Legal PDF & Structured JSON)"]
 ```
 
 ### 1. 🖼️ Analisis Gambar & Forensik EXIF Metadata (`/analisis-gambar`)
-* **Pencarian Profil Global Visual (Reverse Image OSINT):**
-  * Analis cukup mengunggah **1 foto target**, dan sistem secara otomatis memindai ruang digital untuk menemukan profil peniru dan kembaran akun di berbagai jejaring sosial (Instagram, TikTok, Facebook, X, Telegram).
-  * **Animasi Pemindaian Real-Time:** Dilengkapi overlay *laser radar sweep animation* tepat di atas foto yang diunggah selama proses pencocokan berlangsung.
-  * **Tampilan Split Komparatif:** Sisi kiri menampilkan foto unggahan asli secara dinamis, sementara sisi kanan menyajikan metrik kemiripan (*visual match confidence*), jarak hash Hamming, serta kartu profil kandidat hasil deteksi.
-* **Forensik Mendalam EXIF Metadata:**
-  * Ekstraksi perangkat keras pemotretan: Pembuat kamera (*Make*), Model, Lensa, *Firmware*, Nomor Seri, hingga orientasi sensor.
-  * Analisis Optik & Eksposur: Nilai *aperture* (f-stop), kecepatan rana (*exposure time*), ISO, panjang fokus (*focal length*), mode pencahayaan, dan status lampu kilat (*flash*).
-  * **Deteksi Manipulasi Perangkat Lunak (*Software Tampering*):** Memeriksa header EXIF dan XMP untuk mendeteksi jejak suntingan Adobe Photoshop, Lightroom, GIMP, atau Canva beserta waktu modifikasi digital.
-  * **Telemetri Satelit GPS & Peta Interaktif:** Dekode koordinat lintang/bujur, arah mata angin, serta elevasi/ketinggian yang langsung terintegrasi dengan penampil peta interaktif.
-  * **Preset Sampel Forensik Instan:** Tersedia tombol sampel cepat di pojok kanan kartu (`Sampel Diedit Photoshop`, `Sampel iPhone + GPS`, `Sampel Canon DSLR Asli`).
-  * **Integrasi Brankas Bukti:** Tombol 1-klik untuk mengamankan (*vault*) hasil analisis gambar langsung ke *Digital Evidence Locker* lengkap dengan stempel hash SHA-256.
+* **Pencarian Profil Global Visual:** Cukup unggah 1 foto untuk memindai ruang digital dan mencocokkan profil peniru di berbagai media sosial secara otonom.
+* **Forensik Kamera & Optik:** Ekstraksi data kamera (Make, Model, Serial Number, Lensa, Exposure, Aperture, ISO).
+* **Deteksi Rekayasa Digital (*Software Tampering*):** Audit header EXIF/XMP untuk mendeteksi jejak suntingan software grafis (Adobe Photoshop, Lightroom, Canva, GIMP).
+* **Telemetri Satelit GPS:** Dekode koordinat lintang/bujur, arah mata angin, elevasi, dan tautan peta interaktif.
+* **Segel Kriptografis 1-Klik:** Pengamanan instan temuan gambar ke dalam Evidence Vault berstempel SHA-256.
 
 ### 2. 👥 Media Sosial — Pelacak Akun Tiruan Multi-Platform (`/media-sosial`)
-* **Dukungan 5 Platform Terbesar:** Integrasi badge visual vektor resmi untuk **Instagram**, **TikTok**, **Twitter / X**, **Facebook** (`#1877F2`), dan **Telegram** (`#229ED9`).
-* **Loupe Spektral Visual (pHash DCT 64-bit):** Komparasi *side-by-side* antara Avatar Akun Resmi ("RESMI") dan Akun Suspek ("SUSPEK") dengan kalkulasi skor kemiripan persentase dan jarak bit Hamming.
-* **Sinkronisasi Foto Profil Suspek Otomatis:** Pipeline *fallback cascade* cerdas yang menjamin foto profil akun suspek selalu terhubung dengan variasi kloning dari target acuan resmi aktif (`fallbackSrc` handling), bebas dari bug gambar macet atau avatar siluet kosong.
-* **Antrean Triage Ergonomis:** Tata letak tabel dengan ruang nomor lega (`pl-4 pr-3`) dan indikator visual aktif aksen vertikal `3px` yang terisolasi dari nomor baris, bebas desak-desakan saat hover atau aktif.
-* **Multi-Signal Risk Triage:** Deteksi kombinasi nama pengguna homoglif Cyrillic/Greek, tautan bio mencurigakan, nomor kontak pengalihan (WhatsApp/Telegram penipuan), serta tombol ekspor langsung ke brankas bukti.
+* **Dukungan 5 Platform Terbesar:** Integrasi resmi untuk Instagram, TikTok, X (Twitter), Facebook, dan Telegram.
+* **Loupe Spektral Visual (pHash DCT 64-bit):** Komparasi *side-by-side* avatar resmi vs suspek dengan kalkulasi skor kemiripan persentase dan jarak bit Hamming.
+* **Multi-Signal Risk Triage:** Deteksi kombinasi karakter homoglif Cyrillic/Greek, tautan bio mencurigakan, dan kontak penipuan.
 
-### 3. 🤖 Buzzer & Bot Hunter (Analisis Komentar & Astroturfing) (`/buzzer`)
-* **Live Headless Web Scraping:** Ekstraksi langsung dari web publik Instagram, TikTok, Facebook, X, dan web tanpa akun login atau API berbayar.
-* **Modern Polaris SSR Hydration Extraction:** Membedah skrip JSON internal platform modern (`XIGPolaris...Media`) untuk mengambil takarir asli (*captions*), tanggal posting, URL konten, dan identitas pengunggah.
-* **Deterministic Forensic Engagement Heuristics:** Menghitung estimasi interaksi suka (*likes*) dan komentar yang presisi dan stabil berdasarkan rasio pengikut riil target, mencegah data bernilai 0.
-* **Strict Alignment ("Sejajar") UI:** Antrean triage dengan slot metrik berlebar tetap sehingga ikon Suka (Heart) dan Komentar (MessageSquare) selalu sejajar lurus secara horizontal dan vertikal di setiap baris tabel.
-* **Astroturfing & Copypasta Clustering:** Mengelompokkan komentar dengan kemiripan teks $\ge 82\%$ menggunakan algoritma Levenshtein/RapidFuzz untuk memetakan operasi pembentukan opini terkoordinasi.
-* **Threat Intent Classification:** Klasifikasi otomatis motif komentar: *impersonation lure*, pencari korban (*target seeking*), jebakan WhatsApp/Telegram penipuan, atau *doxxing*.
+### 3. 🤖 Buzzer & Bot Hunter (Analisis Astroturfing) (`/buzzer`)
+* **Live Headless Web Scraping:** Ekstraksi data riil web publik Instagram, TikTok, Facebook, dan X tanpa akun login atau API berbayar.
+* **Modern Polaris SSR Hydration:** Ekstraksi skrip JSON internal platform untuk memperoleh teks takarir asli, timestamp, dan identitas pengunggah.
+* **Astroturfing & Copypasta Clustering:** Pengelompokan komentar terkoordinasi dengan kemiripan teks $\ge 82\%$ berbasis algoritma Levenshtein/RapidFuzz.
+* **Visualisasi Topologi Jaringan:** Graf kurva relasi dinamis yang memetakan kluster akun buzzer, sentimen, dan intent ancaman.
 
-### 4. 🌐 Network & Domain Recon OSINT (`/domain`, `/dns`, `/whois`)
-* **Domain Audit & Phishing Scorer:** Pemeriksaan reputasi nama domain, deteksi punycode IDN spoofing, entropy nama domain yang mencurigakan, dan analisis kesiapan sertifikat SSL.
-* **Introspeksi DNS Records:** Resolusi rekod DNS lengkap (A, AAAA, MX, TXT, NS, CNAME) secara *real-time*.
-* **WHOIS Registrar Intelligence:** Pengambilan data registrasi domain, tanggal pembuatan, kedaluwarsa, registrar resmi, dan status *domain privacy*.
+### 4. 🛡️ Attack Surface Management & Nuclei Engine (`/domain`)
+* **Dual-Engine Subdomain Discovery:** Integrasi Subfinder CLI v2.17.0 dan Certificate Transparency Logs (`crt.sh`) untuk memetakan aset eksternal secara non-intrusif.
+* **Dangling CNAME Takeover Detection:** Deteksi rekod DNS usang yang mengarah ke penyedia cloud (GitHub, AWS S3, Heroku, Azure, Vercel) yang rentan disandera.
+* **Targeted Nuclei Vulnerability Scanner (v3.11.1):** Pemindaian berbasis ribuan template resmi ProjectDiscovery dengan filter tingkat keparahan (*Critical, High, Medium, Low*), kode reproduksi `curl PoC`, dan saran remediasi.
+* **WordPress Security Recon (Non-Destruktif):** Audit otomatis rute sensitif:
+  * `/wp-json/wp/v2/users` (kebocoran enumerasi username publik).
+  * `/xmlrpc.php` (antarmuka brute-force massal & DDoS amplification).
+  * `/readme.html` (pengungkapan versi rilis inti untuk pemetaan CVE).
+  * `/wp-content/debug.log` (eksposur stack trace PHP & query internal).
+  * Backup konfigurasi database (`wp-config.php.bak`, `wp-config.php.old`, `.swp`).
+* **Live SSE Terminal Log Streaming:** Konsol monospace interaktif realtime via Server-Sent Events (`text/event-stream`) dengan pewarnaan level log, penemuan live findings, auto-scroll, dan kontrol pembatalan.
 
-### 5. 🛡️ Attack Surface Management & Nuclei Vulnerability Scanner (`/domain`)
-Terintegrasi langsung dalam tab **Subdomain Finder** dan **Nuclei Scanner** pada modul Domain:
-* **Dual-Engine Subdomain Discovery:**
-  * **Subfinder CLI Engine (v2.17.0):** Pemindaian subdomain pasif berskala besar melalui rekod publik, mesin pencari, dan certificate transparency.
-  * **Passive Certificate Transparency Logs (`crt.sh`):** Ekstraksi entri sertifikat SSL/TLS historis dan aktif secara langsung via API non-intrusif tanpa memicu alert target.
-* **Automated Dangling CNAME Takeover Detection:**
-  * Analisis rekod CNAME terhadap penyedia layanan cloud ternama (GitHub Pages, AWS S3, Heroku, Vercel, Microsoft Azure, Fastly, Shopify, Zendesk, dsb.).
-  * Deteksi dini kerentanan pengambilalihan subdomain (*subdomain hijacking*) akibat DNS yang masih mengarah ke bucket/layanan yang telah dihapus (*dangling CNAME pointer*).
-* **Nuclei Vulnerability Scanner (v3.11.1):**
-  * Terintegrasi dengan ribuan template resmi ProjectDiscovery (`nuclei-templates`).
-  * Filter tingkat keparahan (*severity*): `Critical`, `High`, `Medium`, `Low`, `Info`.
-  * Kategori pengujian terarah (*targeted tags*): `exposure` (kebocoran token/.env/git), `misconfig` (salah konfigurasi server), `takeover`, `panel` (antarmuka admin terbuka), dan `cve` (kerentanan teregistrasi).
-  * **Reproducible Proof-of-Concept:** Menampilkan perintah `curl` lengkap untuk memverifikasi temuan secara manual tanpa ketergantungan tool.
-  * **Rekomendasi Remediasi:** Panduan langkah perbaikan konkret bagi tim keamanan/DevOps.
-  * **Segel Kriptografi 1-Klik:** Tombol instan untuk mengamankan temuan kerentanan ke *Digital Evidence Locker* dengan hash SHA-256 dan pembuatan berkas laporan hukum.
+### 5. 🌐 Network & Domain Recon OSINT (`/domain`, `/dns`, `/whois`)
+* **Audit Reputasi Domain & Phishing:** Deteksi punycode IDN spoofing, entropi nama domain acak, dan validitas sertifikat SSL.
+* **Introspeksi Rekod DNS & WHOIS:** Resolusi rekod DNS lengkap (A, AAAA, MX, TXT, NS, CNAME) dan kepemilikan registrar WHOIS.
 
-### 6. 🛡️ Data Breach Intelligence & Leak Tracer (`/leak-tracer`, `/email`, `/nomor-hp`)
-* **Privacy-Preserving Identifier Check:** Pengecekan paparan identitas (Email, Nomor HP, atau SHA-256 Hash) dengan sanitasi dan masking otomatis (contoh: `d***o@example.com` / `+62 812-****-1122`).
-* **Database Insiden Indonesia:** Database lokal insiden kebocoran data terkonfirmasi lintas sektor strategis (Fintech, Healthcare, E-Commerce, Pemerintahan, Telekomunikasi).
-* **Transparent 4-Factor Risk Engine:** Penilaian risiko transparan berdasarkan independensi insiden, bobot sensitivitas data (NIK, Rekening Bank, Rekam Medis), variasi sumber, dan eksposur kata sandi.
+### 6. 🔍 Data Breach Intelligence & Leak Tracer (`/leak-tracer`, `/email`, `/nomor-hp`)
+* **Zero-PII Privacy-Preserving Check:** Pengecekan paparan identitas (Email, Nomor HP, atau SHA-256 Hash) dengan sanitasi dan masking otomatis (`d***o@example.com`).
+* **Katalog Insiden Nasional:** Basis data insiden kebocoran data lintas sektor strategis di Indonesia.
+* **4-Factor Risk Engine:** Pembobotan risiko objektif berdasarkan independensi insiden, jenis data sensitif (NIK, Rekening, Medis), dan variasi sumber.
 
 ### 7. ✉️ Trackable Isolated Smart Alias (`/smart-alias`)
 * **Vendor-Specific Isolation:** Pembuatan alias email terlacak khusus mitra/vendor (`user+vendor_tag@domain`).
-* **Inbound Leak Attribution:** Pencatatan event email masuk yang tidak sah untuk membuktikan secara forensik vendor mana yang mengalami kebocoran data atau menyalahgunakan kontak.
+* **Inbound Leak Attribution:** Pencatatan event email masuk yang tidak sah untuk membuktikan secara forensik vendor mana yang membocorkan data.
 
-### 8. 🔒 Digital Evidence Locker & Chain-of-Custody (`/evidence`, `/hash`)
-* **Cryptographic Tamper-Proofing:** Setiap file barang bukti (foto, tangkapan layar, arsip JSON) langsung dihitung nilai hash SHA-256 saat diakuisisi.
-* **Immutable Custody Trail:** Catatan rantai ketelusuran (*chain-of-custody*) yang bersifat *append-only* untuk kebutuhan pembuktian hukum.
-* **Instant Verification API:** Validasi ulang integritas fisik file secara langsung (`GET /api/v1/evidence/{id}/verify`) untuk membuktikan keaslian berkas.
+### 8. 🔒 Digital Evidence Vault & Chain-of-Custody (`/evidence`, `/hash`)
+* **Integritas Bukti Kriptografis:** Perhitungan nilai hash SHA-256 otomatis pada setiap barang bukti (gambar, dokumen, arsip JSON) saat diakuisisi.
+* **Jejak Audit Immutable:** Rantai ketelusuran (*chain-of-custody*) bersifat *append-only* untuk kebutuhan hukum dan regulasi.
+* **Verifikasi Integritas Instan:** API validasi fisik berkas (`GET /api/v1/evidence/{id}/verify`) untuk menguji ada/tidaknya manipulasi (*tampering*).
 
 ### 9. 📑 Automated Legal Takedown Dossier (`/reports`)
-* **Dual Output (PDF & JSON):** Generator berkas permohonan takedown instan menggunakan mesin **ReportLab** untuk PDF A4 berstandar pengadilan dan skema terstruktur JSON.
-* **Legal Disclaimer & Affidavits:** Dilengkapi klausa yuridis resmi (status DRAFT yang mewajibkan verifikasi akhir manusia), manifest rincian bukti, dan kontak resmi *abuse team* platform.
+* **Output Ganda (PDF & JSON):** Generator berkas permohonan takedown resmi menggunakan ReportLab untuk format PDF A4 standar pengadilan dan skema data JSON.
+* **Afidavit & Klausula Hukum:** Dilengkapi disclaimer yuridis berstatus draft, rincian rantai bukti, dan kontak tim penyalahgunaan (*abuse team*) platform.
 
-### 10. 📱 Mobile-First Responsive Design & Adaptive Layout
-* **Sliding Navigation Drawer:** Navigasi sidebar laci samping yang mulus dengan dukungan backdrop blur dan penutupan otomatis saat memilih modul di perangkat seluler.
-* **Touch-Friendly Triage Tables:** Tabel triage investigasi dengan kontainer `overflow-x-auto` dan ruang sentuh jari yang lega tanpa tumpang tindih kolom.
-* **Fluid Network Topology:** Visualisasi graf jaringan buzzer SVG dan relasi node yang responsif secara dinamis mengikuti orientasi potret/lanskap ponsel dan tablet.
+### 10. 👤 Manajemen Pengguna & Autentikasi Multi-User (`/admin/users`, `/login`)
+* **JWT Bearer Authentication:** Akses terotentikasi dengan token JWT berbasis standar keamanan industri.
+* **Role-Based Access Control (RBAC):** Pemisahan hak akses antara Administrator dan Analis Keamanan.
+* **Manajemen Kredensial Admin:** Kemampuan pengaturan peran pengguna, reset kata sandi, dan penonaktifan akun melalui antarmuka khusus.
 
 ---
 
 ## 🏗️ Arsitektur & Teknologi
 
-NEXTRACE dibangun dengan standar **Clean Architecture & Anti-Slop Protocol**: pemisahan ketat antara lapisan presentasi, logika domain, dan akses data dengan *type-safety* 100%.
+NEXTRACE dibangun dengan standar **Clean Architecture**: pemisahan ketat antara lapisan presentasi, logika domain, dan akses data dengan *type-safety* 100%.
 
 ```
 nextrace/
 ├── backend/                             # Backend API Server (FastAPI + SQLAlchemy 2.0 Async)
 │   ├── app/
-│   │   ├── api/v1/endpoints/            # 57 REST API Endpoints modular:
+│   │   ├── api/v1/endpoints/            # REST API Endpoints modular:
 │   │   │   ├── aliases.py               # Vendor Smart Aliases & Inbound Events
-│   │   │   ├── attack_surface.py        # Subdomain Discovery & Nuclei Vulnerability Engine
-│   │   │   ├── buzzer.py                # Buzzer & Comment Astroturfing Scanner
+│   │   │   ├── attack_surface.py        # Subdomains, Nuclei & SSE Log Stream
+│   │   │   ├── auth.py                  # JWT Auth & Admin User Management
+│   │   │   ├── buzzer.py                # Buzzer & Astroturfing Scanner
 │   │   │   ├── evidence.py              # SHA-256 Digital Vault & Chain-of-Custody
 │   │   │   ├── health.py                # Liveness & Readiness Probes
 │   │   │   ├── image.py                 # Visual Image OSINT & EXIF Forensics
@@ -182,132 +139,94 @@ nextrace/
 │   │   │   ├── investigations.py        # Case Files & Unified Timeline
 │   │   │   ├── leak.py                  # Breach Intelligence & Identifiers
 │   │   │   ├── network.py               # Domain Audit, DNS & WHOIS Recon
-│   │   │   └── reports.py               # ReportLab PDF & JSON Generator
+│   │   │   └── reports.py               # Legal PDF & JSON Dossier Generator
 │   │   ├── core/                        # Security, Config, Exceptions, Logging
 │   │   ├── db/                          # Async Engine, Migrations, Seeders
 │   │   ├── models/                      # SQLAlchemy 2.0 Async ORM Models
-│   │   ├── schemas/                     # Strict Pydantic v2 Contracts (incl. attack_surface.py)
-│   │   └── services/                    # Core Forensic Engines:
-│   │       ├── alias_service.py         # Vendor-Isolated Telemetry
-│   │       ├── attack_surface_service.py # Subfinder, CNAME Takeover & Nuclei Orchestrator
-│   │       ├── breach_service.py        # Multi-Sector Leak Intelligence
-│   │       ├── buzzer_service.py        # Headless Scraping & Polaris Parser
-│   │       ├── evidence_service.py      # SHA-256 Vault & Verifier
-│   │       ├── homoglyph_detection.py   # Unicode Confusable Matrix
-│   │       ├── image_forensics_service.py # EXIF Metadata & GPS Telemetry
-│   │       ├── image_similarity.py      # pHash / dHash Visual Similarity
-│   │       ├── impersonation_service.py # Impersonation Scoring & Signals
-│   │       ├── link_analyzer.py         # Zero-Outbound URL & Punycode
-│   │       ├── network_osint.py         # Domain Reputation & DNS Introspection
-│   │       ├── osint_scanner.py         # Autonomous Global Lookalike Matrix
-│   │       ├── profile_scraper.py       # Edge Headless DOM Collector
-│   │       ├── report_service.py        # Legal PDF Takedown Builder
-│   │       ├── risk_engine.py           # Transparent 4-Factor Risk Engine
-│   │       └── username_similarity.py   # Levenshtein & Normalization
-│   └── tests/                           # Pytest Automated Test Suite (40 tests passing)
-│       ├── integration/                 # API lifecycle & contract tests
-│       └── unit/                        # Unit tests (incl. test_attack_surface.py)
+│   │   ├── schemas/                     # Strict Pydantic v2 Contracts
+│   │   └── services/                    # Core Forensic & Discovery Engines
+│   └── tests/                           # Pytest Automated Test Suite
 │
-└── frontend/                            # Frontend SPA (Next.js 15 App Router)
-    ├── app/                             # Route Pages:
-    │   ├── page.tsx                     # Dashboard, Omni-Scanner & Live Clock
-    │   ├── analisis-gambar/             # Visual Profile Search & EXIF Forensics
-    │   ├── buzzer/                      # Buzzer & Bot Hunter Triage
-    │   ├── dns/                         # DNS Recon & Record Introspection
-    │   ├── domain/                      # Domain Audit & Phishing Scorer
-    │   ├── email/                       # Email OSINT & Breach Intelligence
-    │   ├── evidence/                    # Digital Locker & Integrity Verifier
-    │   ├── hash/                        # Cryptographic Hash Verifier
-    │   ├── impersonation/               # Brand Protection Workspace
-    │   ├── investigations/              # Case Files & Master Timeline
-    │   ├── leak-tracer/                 # Breach Intelligence & Leak Timeline
-    │   ├── media-sosial/                # 5-Platform Impersonator Triage
-    │   ├── nomor-hp/                    # Phone Telemetry & Carrier OSINT
-    │   ├── reports/                     # Dossier Generator & PDF Downloads
-    │   ├── settings/                    # System Configuration & API Keys
-    │   ├── smart-alias/                 # Vendor Alias Generator & Event Logs
-    │   └── whois/                       # WHOIS Registrar Intelligence
-    ├── components/                      # Atomic UI Components & Enterprise Modals
-    └── lib/                             # Strongly-Typed API Client
+└── frontend/                            # Frontend Single Page App (Next.js 15 App Router)
+    ├── app/                             # Route Pages (Analisis Gambar, Buzzer, Domain, Admin, dll.)
+    ├── components/                      # UI Components, Modals & Live Terminal
+    └── lib/                             # Typed API Client & Auth Utilities
 ```
 
-### Komponen Teknologi Utama
+### Matriks Teknologi
 
-| Layer | Komponen / Pustaka | Peran & Keunggulan |
+| Layer | Pustaka / Komponen | Peran & Karakteristik |
 | :--- | :--- | :--- |
-| **Frontend** | Next.js 15 (App Router) + React 19 | Server & Client Components, Zero-Slop Flat Design, High-Performance Hydration |
-| **Styling** | Tailwind CSS (Strict Dark Theme) | Palet netral zinc (`zinc-950` / `zinc-900`), 1px crisp borders, font monospace `tabular-nums` |
-| **Icons** | Lucide React + Vector SVG Resmi | Ikon modern seragam + badge resmi Facebook, Telegram, TikTok, X, Instagram |
-| **Visualisasi** | Recharts | Radar chart multi-sinyal, grafik linimasa kebocoran, kurva relasi buzzer interaktif |
-| **Backend** | Python 3.12+ / FastAPI | Kerangka kerja async non-blocking performa tinggi dengan dokumentasi OpenAPI/Swagger otomatis |
-| **ORM / Database** | SQLAlchemy 2.0 (Async) + SQLite / PostgreSQL | Abstraksi data async murni, migrasi via Alembic, kompatibel SQLite & Postgres |
-| **Forensic Vision** | Pillow + ImageHash | Algoritma pHash (DCT), dHash, ekstraksi tag EXIF kamera, koordinat GPS, mitigasi bomb |
-| **Text Analytics** | RapidFuzz + Unicode Unicodedata | Levenshtein distance, token sort ratio, pemetaan homoglyph lintas aksara (Cyrillic/Greek/Latin) |
-| **Headless OSINT** | Microsoft Edge Headless CLI | Rendering DOM dinamis tanpa beban berat Selenium/Puppeteer |
-| **Attack Surface** | Subfinder CLI v2.17 + crt.sh CT Logs | Enumerasi subdomain pasif non-intrusif & deteksi pengambilalihan CNAME dangling |
-| **Vulnerability Scanning** | Nuclei Engine v3.11.1 | Pemindaian kerentanan berbasis template resmi ProjectDiscovery dengan filter severity |
-| **Dokumentasi PDF** | ReportLab | Mesin kompilasi dokumen permohonan takedown resmi A4 berstandar pengadilan |
+| **Frontend Framework** | Next.js 15 (App Router) + React 19 | Server & Client Components, performa tinggi, zero-slop UI |
+| **Styling & Theme** | Tailwind CSS (Strict Dark Theme) | Palet neutral zinc (`zinc-950` / `zinc-900`), border 1px presisi, font monospace `tabular-nums` |
+| **Visualisasi Data** | Recharts | Radar chart multi-sinyal, linimasa insiden, dan graf relasi interaktif |
+| **Backend Framework** | Python 3.12+ / FastAPI | Async non-blocking framework dengan dokumentasi OpenAPI otomatis |
+| **Database & ORM** | SQLAlchemy 2.0 (Async) + SQLite / PostgreSQL | Abstraksi data async murni dengan migrasi Alembic |
+| **Computer Vision** | Pillow + ImageHash | Algoritma pHash (DCT 64-bit), ekstraksi tag EXIF kamera, koordinat GPS |
+| **Text Analytics** | RapidFuzz + Unicode Normalization | Levenshtein distance, token sort ratio, pemetaan homoglyph lintas aksara |
+| **Headless Recon** | Microsoft Edge Headless CLI | Rendering DOM dinamis untuk ekstraksi profil publik tanpa API berbayar |
+| **Attack Surface** | Subfinder CLI v2.17 + crt.sh Logs | Enumerasi subdomain pasif berskala besar & deteksi dangling CNAME |
+| **Vulnerability Engine** | Nuclei Engine v3.11.1 | Audit kerentanan terarah berbasis template ProjectDiscovery + SSE Stream |
+| **Dokumen Hukum** | ReportLab | Mesin kompilasi berkas permohonan takedown resmi A4 berstandar hukum |
 
 ---
 
-## 💻 Panduan Instalasi & Menjalankan
+## 💻 Panduan Instalasi
 
-### Persyaratan Minimum
-* **Python**: Versi `3.12+` (atau `3.14`)
-* **Node.js**: Versi `18.x` atau lebih baru (`Node v24` teruji) & `npm`
-* **Browser**: Microsoft Edge atau Google Chrome (untuk fitur scraping headless DOM)
+### Persyaratan Sistem
+* **Python**: `3.12+` (atau `3.14`)
+* **Node.js**: `18.x` atau lebih baru (`Node v22` / `v24` teruji) & `npm`
+* **Browser**: Microsoft Edge atau Google Chrome (untuk modul headless scraping)
 * **OS**: Windows 10/11, Arch Linux, Ubuntu 22.04+, atau macOS
 
 ---
 
-### ⚡ 1. Cara Paling Cepat (1-Click Launcher Windows)
-Jalankan file batch launcher pada direktori root:
+### ⚡ 1. Cara Cepat (Windows Batch Launcher)
+Jalankan file launcher pada root direktori:
 ```bat
 start.bat
 ```
-*Skrip ini akan secara otomatis memverifikasi dependensi, menginisialisasi database SQLite, menjalankan server FastAPI di port `8000`, menjalankan Next.js di port `3000`, dan membuka dasbor di browser Anda.*
+*Skrip ini secara otomatis memverifikasi dependensi, menginisialisasi database SQLite, menjalankan server FastAPI di port `8000`, menjalankan Next.js di port `3000`, dan membuka peramban web.*
 
 ---
 
-### 🛠️ 2. Cara Manual (Step-by-Step)
+### 🛠️ 2. Konfigurasi Manual
 
-#### A. Konfigurasi Backend (FastAPI)
-Buka terminal dan navigasikan ke folder `backend`:
+#### A. Backend (FastAPI)
 ```bash
 cd backend
 
-# 1. Buat dan aktifkan virtual environment (opsional tetapi disarankan)
+# 1. Buat dan aktifkan virtual environment
 python -m venv venv
 # Windows:
 .\venv\Scripts\activate
 # Linux/macOS:
 source venv/bin/activate
 
-# 2. Instal seluruh pustaka dependensi
+# 2. Instal dependensi
 pip install -r requirements.txt
 
-# 3. Jalankan migrasi dan seeding database awal
+# 3. Inisialisasi database dan akun awal
 alembic upgrade head
 python -m app.db.seed
 
-# 4. Jalankan server backend FastAPI
+# 4. Jalankan server API
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
-* Dokumentasi interaktif Swagger API: 👉 `http://localhost:8000/docs`
-* Dokumentasi alternatif Redoc: 👉 `http://localhost:8000/redoc`
+* Dokumentasi Interaktif Swagger UI: `http://localhost:8000/docs`
+* Dokumentasi Alternatif ReDoc: `http://localhost:8000/redoc`
 
-#### B. Konfigurasi Frontend (Next.js)
-Buka terminal kedua dan navigasikan ke folder `frontend`:
+#### B. Frontend (Next.js)
 ```bash
 cd frontend
 
-# 1. Instal seluruh paket frontend
+# 1. Instal paket dependensi
 npm install
 
-# 2. Jalankan server development
+# 2. Jalankan server frontend
 npm run dev
 ```
-* Dasbor NEXTRACE siap diakses di browser: 👉 `http://localhost:3000`
+* Dashboard NEXTRACE dapat diakses di: `http://localhost:3000`
 
 ---
 
@@ -320,126 +239,40 @@ docker-compose up --build -d
 
 ## 📡 Katalog API Endpoints
 
-Seluruh API menggunakan awalan `/api/v1` dengan respon berformat JSON terstruktur (Total **57 REST Endpoints**):
+Seluruh endpoint API berada di bawah *prefix* `/api/v1` dengan pertukaran data JSON terstruktur:
 
 | Modul | Method | Endpoint | Deskripsi Fungsi |
 | :--- | :---: | :--- | :--- |
-| **Health** | `GET` | `/api/v1/health` | Liveness probe status backend |
-| **Health** | `GET` | `/api/v1/health/info` | Informasi versi sistem & dependensi |
-| **Health** | `GET` | `/api/v1/health/ready` | Kesiapan koneksi database & storage |
-| **Image** | `POST` | `/api/v1/image/exif` | Unggah file foto & ekstrak seluruh metadata EXIF/GPS/Kamera |
-| **Image** | `POST` | `/api/v1/image/exif-base64` | Ekstraksi forensik metadata gambar dari format Base64 |
-| **Image** | `GET` | `/api/v1/image/samples/{type}` | Ambil sampel foto forensik terkurasi (Photoshop, iPhone GPS, Canon) |
+| **Auth** | `POST` | `/api/v1/auth/login` | Autentikasi pengguna & penerbitan token JWT |
+| **Auth** | `GET` | `/api/v1/auth/me` | Profil data pengguna yang sedang login |
+| **Auth** | `GET` | `/api/v1/auth/users` | Daftar seluruh pengguna terdaftar (Admin) |
+| **Auth** | `POST` | `/api/v1/auth/users` | Pembuatan akun pengguna baru (Admin) |
+| **Auth** | `PATCH` | `/api/v1/auth/users/{id}` | Perubahan data profil & peran pengguna (Admin) |
+| **Auth** | `POST` | `/api/v1/auth/users/{id}/reset-password` | Reset kata sandi pengguna oleh Administrator |
+| **Image** | `POST` | `/api/v1/image/exif` | Ekstraksi metadata kamera, optik, software & GPS foto |
 | **Image** | `POST` | `/api/v1/image/scan-global` | Pindai 1 foto dan cocokkan ke profil sosial media secara global |
-| **Image** | `GET` | `/api/v1/image/scan-global/sample/{type}` | Uji pemindaian profil global menggunakan sampel foto |
-| **Image** | `POST` | `/api/v1/image/vault` | Segel hasil analisis foto ke Digital Evidence Vault (SHA-256) |
-| **Hunter** | `POST` | `/api/v1/impersonator/baseline` | Mendaftarkan profil & avatar resmi brand/figur |
-| **Hunter** | `GET` | `/api/v1/impersonator/baselines` | Mengambil daftar seluruh profil acuan resmi aktif |
-| **Hunter** | `POST` | `/api/v1/impersonator/auto-scan-global` | Pemindaian otonom global lookalike matrix lintas 5 platform |
-| **Hunter** | `POST` | `/api/v1/impersonator/scan` | Pindai kandidat akun tiruan terhadap target baseline |
-| **Hunter** | `POST` | `/api/v1/impersonator/analyze` | Analisis komparatif detail satu akun kandidat |
-| **Hunter** | `GET` | `/api/v1/impersonator/findings` | Daftar seluruh temuan akun peniru mencurigakan |
-| **Hunter** | `POST` | `/api/v1/impersonator/generate-takedown-report` | Pembuatan berkas pengajuan takedown cepat |
-| **Hunter** | `POST` | `/api/v1/impersonator/quick-compare` | Komparasi cepat teks dan avatar tanpa menyimpan sesi |
-| **Buzzer** | `POST` | `/api/v1/buzzer/scan` | Pemindaian web real komentar, profil, dan astroturfing |
-| **Buzzer** | `GET` | `/api/v1/buzzer/scans` | Riwayat seluruh sesi pemindaian buzzer |
+| **Image** | `POST` | `/api/v1/image/vault` | Segel hasil analisis foto ke Evidence Vault (SHA-256) |
+| **Impersonator** | `POST` | `/api/v1/impersonator/baseline` | Pendaftaran profil & avatar acuan resmi brand/figur |
+| **Impersonator** | `POST` | `/api/v1/impersonator/scan` | Pindai kandidat akun tiruan terhadap target baseline |
+| **Impersonator** | `POST` | `/api/v1/impersonator/generate-takedown-report` | Pembuatan berkas pengajuan takedown cepat |
+| **Buzzer** | `POST` | `/api/v1/buzzer/scan` | Pemindaian web real komentar, profil, dan kluster astroturfing |
 | **Buzzer** | `GET` | `/api/v1/buzzer/scans/{id}` | Detail sesi pemindaian buzzer & antrean triage |
-| **Buzzer** | `DELETE` | `/api/v1/buzzer/scans/{id}` | Menghapus sesi pemindaian buzzer |
-| **Buzzer** | `GET` | `/api/v1/buzzer/stats` | Agregasi metrik buzzer, bot, dan ancaman aktif |
-| **Network**| `POST` | `/api/v1/network/domain-audit` | Audit reputasi domain, punycode, dan indikator phishing |
-| **Network**| `GET` | `/api/v1/network/dns` | Resolusi rekod DNS lengkap (A, MX, TXT, NS, CNAME) |
-| **Network**| `GET` | `/api/v1/network/whois` | Lookup data registrasi WHOIS dan informasi registrar |
-| **Attack Surface** | `POST` | `/api/v1/attack-surface/subdomains` | Enumerasi subdomain via Subfinder & Passive CT Logs crt.sh serta deteksi Dangling CNAME Takeover |
-| **Attack Surface** | `POST` | `/api/v1/attack-surface/nuclei` | Pindai kerentanan web terarah menggunakan Nuclei Engine v3.11.1 dengan filter severity & tags |
-| **Leak** | `POST` | `/api/v1/leak/check` | Pemeriksaan paparan data (Email, Nomor HP, SHA-256) |
-| **Leak** | `GET` | `/api/v1/leak/incidents` | Riwayat katalog insiden kebocoran data terdokumentasi |
+| **Attack Surface**| `POST` | `/api/v1/attack-surface/subdomains` | Enumerasi subdomain via Subfinder & CT Logs crt.sh |
+| **Attack Surface**| `POST` | `/api/v1/attack-surface/nuclei` | Audit kerentanan web terarah (Default, WordPress, CVE) |
+| **Attack Surface**| `GET` | `/api/v1/attack-surface/nuclei/stream` | Streaming realtime log terminal & temuan Nuclei via SSE |
+| **Network** | `POST` | `/api/v1/network/domain-audit` | Audit reputasi domain, punycode, dan indikator phishing |
+| **Network** | `GET` | `/api/v1/network/dns` | Resolusi rekod DNS lengkap (A, AAAA, MX, TXT, NS, CNAME) |
+| **Network** | `GET` | `/api/v1/network/whois` | Lookup data registrasi WHOIS dan informasi registrar |
+| **Leak** | `POST` | `/api/v1/leak/check` | Pemeriksaan paparan data (Email, Nomor HP, Hash SHA-256) |
+| **Leak** | `GET` | `/api/v1/leak/incidents` | Riwayat katalog insiden kebocoran data terkonfirmasi |
 | **Alias** | `POST` | `/api/v1/aliases/generate` | Pembuatan email alias terlacak untuk vendor mitra |
-| **Alias** | `GET` | `/api/v1/aliases` | Daftar seluruh email alias aktif |
 | **Alias** | `POST` | `/api/v1/aliases/{id}/events` | Ingest event email masuk mencurigakan |
-| **Case** | `POST` | `/api/v1/investigations` | Pembukaan berkas kasus investigasi baru |
-| **Case** | `GET` | `/api/v1/investigations/{id}/timeline` | Linimasa kronologis terpadu seluruh temuan kasus |
-| **Evidence**| `POST` | `/api/v1/evidence` | Unggah barang bukti digital (kalkulasi SHA-256 otomatis) |
-| **Evidence**| `GET` | `/api/v1/evidence/{id}/verify` | Pembuktian integritas kriptografi barang bukti fisik |
+| **Investigation**| `POST` | `/api/v1/investigations` | Pembukaan berkas kasus investigasi baru |
+| **Investigation**| `GET` | `/api/v1/investigations/{id}/timeline` | Linimasa kronologis terpadu seluruh temuan kasus |
+| **Evidence** | `POST` | `/api/v1/evidence` | Unggah barang bukti digital (kalkulasi hash SHA-256) |
+| **Evidence** | `GET` | `/api/v1/evidence/{id}/verify` | Pembuktian integritas kriptografi barang bukti fisik |
 | **Report** | `POST` | `/api/v1/reports/generate` | Pembuatan laporan resmi kasus (PDF atau JSON) |
 | **Report** | `GET` | `/api/v1/reports/{id}/download` | Pengunduhan fisik berkas laporan takedown PDF/JSON |
-
----
-
-## 🧪 Pengujian & Jaminan Mutu Kode
-
-NEXTRACE menerapkan kebijakan **Zero Code Slop** dan pengujian otomatis komprehensif pada lapisan logika bisnis maupun antarmuka:
-
-### 1. Eksekusi Pytest (Backend)
-```bash
-cd backend
-pytest -v
-```
-```text
-============================= test session starts =============================
-platform win32 -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0
-collected 40 items
-
-tests/integration/test_buzzer_api.py::TestBuzzerAPI::test_buzzer_scan_lifecycle PASSED [  2%]
-tests/integration/test_evidence_report_api.py::TestEvidenceAndReportAPI::test_investigation_lifecycle_and_timeline PASSED [  5%]
-tests/integration/test_evidence_report_api.py::TestEvidenceAndReportAPI::test_generate_and_download_pdf_report PASSED [  7%]
-tests/integration/test_evidence_report_api.py::TestEvidenceAndReportAPI::test_generate_json_report PASSED [ 10%]
-tests/integration/test_impersonator_api.py::TestImpersonatorAPI::test_baseline_creation_and_scan PASSED [ 12%]
-tests/integration/test_leak_api.py::TestLeakAPI::test_matching_synthetic_identifier PASSED [ 15%]
-tests/integration/test_leak_api.py::TestLeakAPI::test_no_match_result PASSED [ 17%]
-tests/integration/test_leak_api.py::TestLeakAPI::test_invalid_identifier_validation PASSED [ 20%]
-tests/integration/test_leak_api.py::TestLeakAPI::test_alias_creation_uniqueness PASSED [ 22%]
-tests/integration/test_leak_api.py::TestLeakAPI::test_inbound_event_mapped_to_alias PASSED [ 25%]
-tests/unit/test_attack_surface.py::test_clean_target_hostname PASSED     [ 27%]
-tests/unit/test_attack_surface.py::test_subdomain_models PASSED          [ 30%]
-tests/unit/test_attack_surface.py::test_nuclei_models PASSED             [ 32%]
-tests/unit/test_attack_surface.py::test_native_exposure_probe_empty_on_offline PASSED [ 35%]
-tests/unit/test_buzzer_report.py::test_buzzer_threat_dossier_pdf_generation PASSED [ 37%]
-tests/unit/test_buzzer_report.py::test_evidence_service_push_with_auto_investigation PASSED [ 40%]
-tests/unit/test_image_similarity.py::TestImageSimilarity::test_identical_image PASSED [ 42%]
-tests/unit/test_image_similarity.py::TestImageSimilarity::test_resized_image PASSED [ 45%]
-tests/unit/test_image_similarity.py::TestImageSimilarity::test_compressed_image PASSED [ 47%]
-tests/unit/test_image_similarity.py::TestImageSimilarity::test_visually_different_image PASSED [ 50%]
-tests/unit/test_image_similarity.py::TestImageSimilarity::test_invalid_image_upload PASSED [ 52%]
-tests/unit/test_image_similarity.py::TestImageSimilarity::test_correct_hamming_distance_calculation PASSED [ 55%]
-tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_ordinary_public_website PASSED [ 57%]
-tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_shortened_url PASSED [ 60%]
-tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_punycode_domain PASSED [ 62%]
-tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_suspicious_redirect_parameter PASSED [ 65%]
-tests/unit/test_link_analyzer.py::TestLinkAnalyzer::test_malformed_url PASSED [ 67%]
-tests/unit/test_network_osint.py::test_clean_domain_sanitization PASSED  [ 70%]
-tests/unit/test_network_osint.py::test_government_domain_reputation PASSED [ 72%]
-tests/unit/test_network_osint.py::test_fresh_phishing_domain_reputation PASSED [ 75%]
-tests/unit/test_network_osint.py::test_whois_field_parsing PASSED        [ 77%]
-tests/unit/test_risk_engine.py::TestRiskEngine::test_impersonation_risk_critical PASSED [ 80%]
-tests/unit/test_risk_engine.py::TestRiskEngine::test_impersonation_risk_low PASSED [ 82%]
-tests/unit/test_risk_engine.py::TestRiskEngine::test_breach_risk_assessment_with_credentials PASSED [ 85%]
-tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_exact_match PASSED [ 87%]
-tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_single_character_substitution PASSED [ 90%]
-tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_character_confusable_homoglyph PASSED [ 92%]
-tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_similar_legitimate_username PASSED [ 95%]
-tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_suspicious_suffix PASSED [ 97%]
-tests/unit/test_username_similarity.py::TestUsernameSimilarity::test_unicode_normalization PASSED [100%]
-
-============================= 40 passed in 58.91s =============================
-```
-
-### 2. Pemeriksaan Statis Kode Python (Ruff)
-```bash
-cd backend
-ruff check .
-```
-```text
-All checks passed! (0 errors)
-```
-
-### 3. Pemeriksaan Kompilasi TypeScript (Frontend)
-```bash
-cd frontend
-npx tsc --noEmit
-```
-```text
-Clean compilation (0 errors)
-```
 
 ---
 
@@ -452,6 +285,6 @@ Clean compilation (0 errors)
 ---
 
 <div align="center">
-  <sub>Dibangun dengan dedikasi untuk kedaulatan data dan integritas ruang digital Indonesia.</sub><br />
+  <sub>Dibangun untuk kedaulatan data dan integritas ruang digital Indonesia.</sub><br />
   <strong>© 2026 NEXTRACE Core Team. All Rights Reserved.</strong>
 </div>
