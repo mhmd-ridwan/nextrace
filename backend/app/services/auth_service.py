@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from sqlalchemy import or_, select
+from sqlalchemy import delete, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
@@ -27,14 +27,6 @@ _DEMO_USERS: list[dict] = [
         "password": "nextrace2026",
     },
     {
-        "id": "user-owner-001",
-        "username": "owner",
-        "email": "owner@taya.web.id",
-        "full_name": "TAYA System Owner",
-        "role": UserRole.ADMIN,
-        "password": "nextrace2026",
-    },
-    {
         "id": "user-analyst-001",
         "username": "analis",
         "email": "analis@nextrace.id",
@@ -54,7 +46,17 @@ _DEMO_USERS: list[dict] = [
 
 
 async def ensure_demo_users(db: AsyncSession) -> None:
-    """Seed initial system users idempotently."""
+    """Seed initial system users idempotently and purge deprecated accounts."""
+    await db.execute(
+        delete(User).where(
+            or_(
+                User.username == "owner",
+                User.email == "owner@taya.web.id",
+            )
+        )
+    )
+    await db.commit()
+
     for u in _DEMO_USERS:
         existing = await db.execute(
             select(User).where(

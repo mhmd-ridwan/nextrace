@@ -53,9 +53,9 @@ def test_auth_schemas_validation():
 
     profile = UserProfile(
         id="user-001",
-        username="owner",
-        email="owner@taya.web.id",
-        full_name="Owner TAYA",
+        username="admin",
+        email="admin@nextrace.id",
+        full_name="Admin Nextrace",
         role=UserRole.ADMIN,
         is_active=True,
     )
@@ -68,7 +68,7 @@ def test_auth_schemas_validation():
         user=profile,
     )
     assert token_resp.token_type == "bearer"
-    assert token_resp.user.email == "owner@taya.web.id"
+    assert token_resp.user.email == "admin@nextrace.id"
 
 
 def test_admin_user_management_schemas():
