@@ -50,4 +50,3 @@ class UserUpdateRequest(BaseModel):
 
 class AdminResetPasswordRequest(BaseModel):
     new_password: str = Field(..., min_length=8)
-

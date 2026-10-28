@@ -58,6 +58,34 @@ def test_nuclei_models():
 @pytest.mark.asyncio
 async def test_native_exposure_probe_empty_on_offline():
     service = AttackSurfaceService()
-    # Test that native probe handles unreachable ports gracefully without raising unhandled exceptions
-    findings = await service._run_native_exposure_probe("http://192.0.2.1:59999")
+    findings = await service._run_native_exposure_probe("http://127.0.0.1:59999")
     assert isinstance(findings, list)
+
+
+@pytest.mark.asyncio
+async def test_wordpress_audit_probe_empty_on_offline():
+    service = AttackSurfaceService()
+    findings = await service._run_wordpress_audit_probe("http://127.0.0.1:59999")
+    assert isinstance(findings, list)
+
+
+def test_nuclei_preset_request():
+    req = NucleiScanRequest(target="wp.target.go.id", preset="wordpress")
+    assert req.preset == "wordpress"
+    assert req.target == "wp.target.go.id"
+
+
+@pytest.mark.asyncio
+async def test_stream_security_scan_sse_events():
+    service = AttackSurfaceService()
+    events = []
+    async for event_chunk in service.stream_security_scan("presidenri.go.id", preset="wordpress"):
+        events.append(event_chunk)
+        if len(events) >= 2:
+            break
+
+    assert len(events) >= 2
+    # Check SSE format
+    first_event = events[0]
+    assert "event: " in first_event
+    assert "data: " in first_event

@@ -195,4 +195,3 @@ async def delete_user(
     await db.delete(user)
     await db.commit()
     return {"success": True, "message": f"User '{user.username}' berhasil dihapus."}
-

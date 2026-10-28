@@ -115,14 +115,37 @@ INDONESIAN_PROVINCES: dict[str, str] = {
 
 
 DISPOSABLE_EMAIL_DOMAINS: set[str] = {
-    "tempmail.com", "temp-mail.org", "10minutemail.com", "guerrillamail.com",
-    "guerrillamail.net", "guerrillamail.org", "sharklasers.com", "grr.la",
-    "mailinator.com", "yopmail.com", "yopmail.fr", "trashmail.com",
-    "dispostable.com", "fakemailgenerator.com", "getairmail.com", "burnermail.io",
-    "mohmal.com", "throwawaymail.com", "tempail.com", "crazymailing.com",
-    "inboxbear.com", "mytemp.email", "generator.email", "dropmail.me",
-    "emailondeck.com", "guerrillamailblock.com", "pokemail.net", "spam4.me", "nada.ltd"
+    "tempmail.com",
+    "temp-mail.org",
+    "10minutemail.com",
+    "guerrillamail.com",
+    "guerrillamail.net",
+    "guerrillamail.org",
+    "sharklasers.com",
+    "grr.la",
+    "mailinator.com",
+    "yopmail.com",
+    "yopmail.fr",
+    "trashmail.com",
+    "dispostable.com",
+    "fakemailgenerator.com",
+    "getairmail.com",
+    "burnermail.io",
+    "mohmal.com",
+    "throwawaymail.com",
+    "tempail.com",
+    "crazymailing.com",
+    "inboxbear.com",
+    "mytemp.email",
+    "generator.email",
+    "dropmail.me",
+    "emailondeck.com",
+    "guerrillamailblock.com",
+    "pokemail.net",
+    "spam4.me",
+    "nada.ltd",
 }
+
 
 class BreachService:
     """Service for breach intelligence lookups, enrichment, and risk assessment."""
@@ -214,7 +237,9 @@ class BreachService:
             risk_score = max(risk_score, 78.0)
             risk_level = "high"
             if "Terdeteksi alamat email sekali pakai (Disposable / Burner Email)" not in risk_factors:
-                risk_factors.insert(0, "Terdeteksi alamat email sekali pakai (Disposable / Burner Email - Indikasi Botnet)")
+                risk_factors.insert(
+                    0, "Terdeteksi alamat email sekali pakai (Disposable / Burner Email - Indikasi Botnet)"
+                )
 
         return LeakCheckResponse(
             query=identifier,
@@ -353,7 +378,9 @@ class BreachService:
                 line_type="Mobile Cellular GSM",
                 prefix=prefix or "+62",
                 is_valid_format=is_valid_format,
-                telecom_category="Kartu Seluler Pascabayar" if "pascabayar" in carrier_label.lower() or "halo" in carrier_label.lower() else "Kartu Seluler Prabayar",
+                telecom_category="Kartu Seluler Pascabayar"
+                if "pascabayar" in carrier_label.lower() or "halo" in carrier_label.lower()
+                else "Kartu Seluler Prabayar",
                 fraud_risk_score=15 if is_valid_format else 65,
                 threat_vectors=[
                     "Potensi SIM Swap Fraud: Upaya pengambilalihan kartu SIM di gerai operator guna membajak SMS OTP perbankan.",

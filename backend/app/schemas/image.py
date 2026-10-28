@@ -76,7 +76,9 @@ class GPSLocation(BaseModel):
     longitude_ref: str | None = Field(None, description="'E' or 'W'")
     google_maps_url: str | None = Field(None, description="Direct Google Maps URL")
     openstreetmap_url: str | None = Field(None, description="Direct OpenStreetMap URL")
-    location_hint: str | None = Field(None, description="Formatted coordinate string e.g. '6°12\\'31.5\"S, 106°48\\'44.2\"E'")
+    location_hint: str | None = Field(
+        None, description="Formatted coordinate string e.g. '6°12\\'31.5\"S, 106°48\\'44.2\"E'"
+    )
     gps_timestamp: str | None = Field(None, description="GPS satellite timestamp")
 
 
@@ -112,7 +114,9 @@ class MatchedProfile(BaseModel):
     avatar_path: str | None = None
     visual_similarity_score: float = Field(..., description="Visual match percentage 0-100")
     hash_distance: int = Field(0, description="pHash Hamming bit distance")
-    match_classification: str = Field("LOOKALIKE", description="EXACT_AVATAR, CROPPED_CLONE, HIGH_SIMILARITY, LOOKALIKE")
+    match_classification: str = Field(
+        "LOOKALIKE", description="EXACT_AVATAR, CROPPED_CLONE, HIGH_SIMILARITY, LOOKALIKE"
+    )
     risk_severity: str = Field("medium", description="critical, high, medium, low")
     risk_score: float = Field(50.0, description="Risk score 0-100")
     threat_indicators: list[str] = Field(default_factory=list)
@@ -131,4 +135,3 @@ class GlobalImageScanResponse(BaseModel):
     high_risk_matches: int
     matched_entity_name: str
     matched_profiles: list[MatchedProfile] = Field(default_factory=list)
-

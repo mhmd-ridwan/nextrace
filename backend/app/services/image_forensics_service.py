@@ -189,7 +189,9 @@ class ImageForensicsService:
             )
 
         if not camera_data.make and not camera_data.model and tampering_data.software:
-            tampering_indicators.append("Tag perangkat keras kamera hilang (indikasi citra diekspor ulang / re-encoded)")
+            tampering_indicators.append(
+                "Tag perangkat keras kamera hilang (indikasi citra diekspor ulang / re-encoded)"
+            )
 
         tampering_data.tampering_indicators = tampering_indicators
 
@@ -258,7 +260,9 @@ class ImageForensicsService:
         location_hint = self._format_dms_string(lat_raw, lat_ref, lon_raw, lon_ref)
 
         google_maps_url = f"https://www.google.com/maps?q={lat_dec:.6f},{lon_dec:.6f}"
-        openstreetmap_url = f"https://www.openstreetmap.org/?mlat={lat_dec:.6f}&mlon={lon_dec:.6f}#map=16/{lat_dec:.6f}/{lon_dec:.6f}"
+        openstreetmap_url = (
+            f"https://www.openstreetmap.org/?mlat={lat_dec:.6f}&mlon={lon_dec:.6f}#map=16/{lat_dec:.6f}/{lon_dec:.6f}"
+        )
 
         # GPS Timestamp
         gps_ts = None
@@ -461,7 +465,8 @@ class ImageForensicsService:
                                     platform=cand.platform,
                                     username=cand.username,
                                     display_name=cand.display_name or cand.username,
-                                    profile_url=cand.profile_url or f"https://{cand.platform.lower()}.com/@{cand.username}",
+                                    profile_url=cand.profile_url
+                                    or f"https://{cand.platform.lower()}.com/@{cand.username}",
                                     avatar_path=cand.avatar_path,
                                     avatar_url=f"/uploads/{Path(cand.avatar_path).name}" if cand.avatar_path else None,
                                     visual_similarity_score=sim,
@@ -566,7 +571,7 @@ class ImageForensicsService:
                     "score": 93.0,
                     "threats": [
                         "Duplikasi foto profil target identik 100% untuk akun pancingan phishing",
-                        "Pencatutan identitas visual untuk modus hadiah & giveaway eksternal via WhatsApp"
+                        "Pencatutan identitas visual untuk modus hadiah & giveaway eksternal via WhatsApp",
                     ],
                     "contacts": ["+62 812-9988-1122"],
                 },
@@ -583,7 +588,7 @@ class ImageForensicsService:
                     "score": 87.0,
                     "threats": [
                         "Foto dipotong dan digunakan dalam bio promosi mencurigakan",
-                        "Akun terindikasi melakukan impersonasi aktif terhadap subjek foto"
+                        "Akun terindikasi melakukan impersonasi aktif terhadap subjek foto",
                     ],
                     "contacts": ["@cs_fast_help"],
                 },
@@ -600,7 +605,7 @@ class ImageForensicsService:
                     "score": 82.0,
                     "threats": [
                         "Grup publik ilegal menggunakan wajah subjek target untuk klaim bantuan",
-                        "Kluster bot otomatis penyebar tautan spam di kolom komentar"
+                        "Kluster bot otomatis penyebar tautan spam di kolom komentar",
                     ],
                     "contacts": ["+62 878-0971-7636"],
                 },
@@ -617,7 +622,7 @@ class ImageForensicsService:
                     "score": 85.0,
                     "threats": [
                         "Kanal Telegram publik menyebarkan berkas APK malware berkedok formulir",
-                        "Phishing kredensial dengan mencatut foto subjek sebagai admin grup"
+                        "Phishing kredensial dengan mencatut foto subjek sebagai admin grup",
                     ],
                     "contacts": ["t.me/+6281299881122"],
                 },

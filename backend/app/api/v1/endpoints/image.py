@@ -156,7 +156,9 @@ async def get_forensic_sample(sample_type: str):
     return forensics_service.analyze_bytes(buf.getvalue(), file_name=file_name)
 
 
-@router.post("/scan-global", response_model=GlobalImageScanResponse, summary="Scan image and reverse match profiles globally")
+@router.post(
+    "/scan-global", response_model=GlobalImageScanResponse, summary="Scan image and reverse match profiles globally"
+)
 async def scan_image_global(
     file: UploadFile = File(...),
     investigation_id: str = Form("inv-jokowi-001"),
@@ -191,7 +193,11 @@ async def scan_image_global(
         raise HTTPException(status_code=500, detail=f"Gagal memindai profil citra secara global: {e}") from e
 
 
-@router.get("/scan-global/sample/{sample_type}", response_model=GlobalImageScanResponse, summary="Scan curated sample image globally")
+@router.get(
+    "/scan-global/sample/{sample_type}",
+    response_model=GlobalImageScanResponse,
+    summary="Scan curated sample image globally",
+)
 async def scan_sample_global(
     sample_type: str,
     investigation_id: str = Query("inv-jokowi-001"),

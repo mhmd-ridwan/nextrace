@@ -97,6 +97,7 @@ class NucleiScanRequest(BaseModel):
         default_factory=lambda: ["critical", "high", "medium", "low"],
         description="Severity levels to report",
     )
+    preset: str | None = Field(default="default", description="Scan preset: default, wordpress, cve")
     investigation_id: str | None = Field(default=None, description="Optional associated case ID")
 
 
@@ -104,6 +105,7 @@ class NucleiScanResponse(BaseModel):
     """Aggregated report of Nuclei security assessment."""
 
     target: str
+    preset: str | None = "default"
     total_findings: int
     critical_count: int
     high_count: int

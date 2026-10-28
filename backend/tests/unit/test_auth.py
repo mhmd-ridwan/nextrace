@@ -83,4 +83,3 @@ def test_admin_user_management_schemas():
 
     reset_req = AdminResetPasswordRequest(new_password="NewSecurePass2026!")
     assert reset_req.new_password == "NewSecurePass2026!"
-

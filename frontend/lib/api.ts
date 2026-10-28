@@ -23,6 +23,7 @@ import {
   InvestigationTimeline,
   LeakCheckResponse,
   NucleiScanResponse,
+  NucleiVulnerabilityItem,
   ScanResponse,
   SubdomainScanResponse,
   SystemInfo,
@@ -539,12 +540,125 @@ export const api = {
     target: string;
     tags?: string[];
     severity?: string[];
+    preset?: string;
     investigation_id?: string;
   }): Promise<NucleiScanResponse> {
     return request("/attack-surface/nuclei", {
       method: "POST",
       body: JSON.stringify(data),
     });
+  },
+
+  async streamNuclei(
+    params: {
+      target: string;
+      preset?: string;
+      tags?: string[];
+      severity?: string[];
+    },
+    callbacks: {
+      onLog?: (log: { level: string; message: string; timestamp: string }) => void;
+      onFinding?: (item: NucleiVulnerabilityItem) => void;
+      onSummary?: (summary: NucleiScanResponse) => void;
+      onError?: (err: Error) => void;
+      onComplete?: () => void;
+    },
+    signal?: AbortSignal
+  ): Promise<void> {
+    const query = new URLSearchParams({
+      target: params.target,
+      preset: params.preset || "default",
+    });
+    if (params.tags && params.tags.length > 0) {
+      query.set("tags", params.tags.join(","));
+    }
+    if (params.severity && params.severity.length > 0) {
+      query.set("severity", params.severity.join(","));
+    }
+
+    const url = `${API_BASE_URL}/attack-surface/nuclei/stream?${query.toString()}`;
+    const headers = new Headers();
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("nextrace_access_token");
+      if (token) headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    try {
+      const res = await fetch(url, {
+        method: "GET",
+        headers,
+        signal,
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      if (!res.body) {
+        throw new Error("ReadableStream not supported by response body.");
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const events = buffer.split("\n\n");
+        buffer = events.pop() || "";
+
+        for (const rawEvent of events) {
+          const lines = rawEvent.split("\n");
+          let eventType = "message";
+          let dataStr = "";
+
+          for (const line of lines) {
+            if (line.startsWith("event: ")) {
+              eventType = line.slice(7).trim();
+            } else if (line.startsWith("data: ")) {
+              dataStr = line.slice(6).trim();
+            }
+          }
+
+          if (!dataStr) continue;
+
+          try {
+            const parsed = JSON.parse(dataStr);
+            if (eventType === "log" && callbacks.onLog) {
+              callbacks.onLog(parsed);
+            } else if (eventType === "finding" && callbacks.onFinding) {
+              callbacks.onFinding(parsed);
+            } else if (eventType === "summary" && callbacks.onSummary) {
+              callbacks.onSummary(parsed);
+            } else if (eventType === "done" && callbacks.onComplete) {
+              callbacks.onComplete();
+            }
+          } catch {
+            if (eventType === "log" && callbacks.onLog) {
+              callbacks.onLog({
+                level: "INFO",
+                message: dataStr,
+                timestamp: new Date().toLocaleTimeString(),
+              });
+            }
+          }
+        }
+      }
+
+      if (callbacks.onComplete) {
+        callbacks.onComplete();
+      }
+    } catch (err: any) {
+      if (signal?.aborted) return;
+      if (callbacks.onError) {
+        callbacks.onError(err);
+      } else {
+        throw err;
+      }
+    }
   },
 
   // Module G: Image Forensics & EXIF Analysis

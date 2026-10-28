@@ -624,6 +624,7 @@ export interface NucleiVulnerabilityItem {
 
 export interface NucleiScanResponse {
   target: string;
+  preset?: string;
   total_findings: number;
   critical_count: number;
   high_count: number;

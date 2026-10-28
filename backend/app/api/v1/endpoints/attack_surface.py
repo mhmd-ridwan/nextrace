@@ -4,6 +4,7 @@ Provides Subdomain Enumeration (Subfinder + CT Logs) and Nuclei Vulnerability In
 """
 
 from fastapi import APIRouter, Query
+from fastapi.responses import StreamingResponse
 
 from app.schemas.attack_surface import (
     NucleiScanRequest,
@@ -42,4 +43,36 @@ async def scan_nuclei_post(req: NucleiScanRequest) -> NucleiScanResponse:
         target_input=req.target,
         tags=req.tags,
         severity=req.severity,
+        preset=req.preset,
+    )
+
+
+@router.get("/nuclei/stream", summary="Stream live Nuclei logs and findings via SSE")
+async def stream_nuclei_get(
+    target: str = Query(..., min_length=3, max_length=500, description="Target URL or hostname"),
+    preset: str = Query("default", description="Scan preset: default, wordpress, cve"),
+    tags: str | None = Query(None, description="Comma-separated template tags"),
+    severity: str | None = Query(None, description="Comma-separated severity levels"),
+) -> StreamingResponse:
+    """
+    Streams line-by-line terminal logs, live probe status, real-time discovered vulnerability items,
+    and final summary using Server-Sent Events (SSE).
+    """
+    parsed_tags = [t.strip() for t in tags.split(",") if t.strip()] if tags else None
+    parsed_sev = [s.strip() for s in severity.split(",") if s.strip()] if severity else None
+
+    generator = service.stream_security_scan(
+        target_input=target,
+        tags=parsed_tags,
+        severity=parsed_sev,
+        preset=preset,
+    )
+    return StreamingResponse(
+        generator,
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
     )

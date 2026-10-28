@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -67,8 +67,9 @@ function DomainContent() {
   const [subdomainFilter, setSubdomainFilter] = useState("");
   const [filterOnlyLive, setFilterOnlyLive] = useState(false);
 
-  // Tab 3: Nuclei Engine State
+  // Tab 3: Nuclei Engine State & Live Stream
   const [nucleiTarget, setNucleiTarget] = useState(initialDomain);
+  const [nucleiPreset, setNucleiPreset] = useState<"default" | "wordpress" | "cve">("default");
   const [nucleiResult, setNucleiResult] = useState<NucleiScanResponse | null>(null);
   const [loadingNuclei, setLoadingNuclei] = useState(false);
   const [errorNuclei, setErrorNuclei] = useState<string | null>(null);
@@ -78,6 +79,13 @@ function DomainContent() {
     "medium",
     "low",
   ]);
+  const [terminalLogs, setTerminalLogs] = useState<
+    Array<{ id: string; level: string; message: string; timestamp: string }>
+  >([]);
+  const [autoScrollTerminal, setAutoScrollTerminal] = useState(true);
+  const [showTerminal, setShowTerminal] = useState(true);
+  const terminalBottomRef = useRef<HTMLDivElement | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [copiedCurlId, setCopiedCurlId] = useState<string | null>(null);
   const [copiedSubdomain, setCopiedSubdomain] = useState<string | null>(null);
   const [vaultLoadingId, setVaultLoadingId] = useState<string | null>(null);
@@ -108,6 +116,13 @@ function DomainContent() {
       setNucleiTarget(initialDomain);
     }
   }, [initialDomain]);
+
+  // Auto-scroll terminal log to bottom
+  useEffect(() => {
+    if (autoScrollTerminal && terminalBottomRef.current) {
+      terminalBottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [terminalLogs, autoScrollTerminal]);
 
   // Tab 1: Lookup Handler
   const handleLookup = async (targetDomain: string) => {
@@ -141,24 +156,148 @@ function DomainContent() {
     }
   };
 
-  // Tab 3: Nuclei Vulnerability Scan Handler
-  const handleRunNuclei = async (targetToScan: string) => {
+  // Tab 3: Nuclei Vulnerability Scan & SSE Stream Handler
+  const handleRunNuclei = async (
+    targetToScan: string,
+    presetOverride?: "default" | "wordpress" | "cve"
+  ) => {
     if (!targetToScan.trim()) return;
+    const target = targetToScan.trim();
+    const activePreset = presetOverride || nucleiPreset;
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoadingNuclei(true);
     setErrorNuclei(null);
 
+    // Initialize clean state for live scan
+    setNucleiResult({
+      target,
+      preset: activePreset,
+      total_findings: 0,
+      critical_count: 0,
+      high_count: 0,
+      medium_count: 0,
+      low_count: 0,
+      info_count: 0,
+      findings: [],
+      scanned_at: new Date().toISOString(),
+      execution_time_seconds: 0,
+    });
+
+    const now = new Date().toLocaleTimeString();
+    setTerminalLogs((prev) => [
+      ...prev,
+      {
+        id: `${Date.now()}-init`,
+        level: "INFO",
+        message: `Memulai audit keamanan NEXTRACE (Preset: ${activePreset.toUpperCase()}) pada ${target}...`,
+        timestamp: now,
+      },
+    ]);
+
     try {
-      const res = await api.scanNuclei({
-        target: targetToScan.trim(),
-        severity: selectedSeverities,
-        tags: ["exposure", "misconfig", "takeover", "panel", "cve", "phishing"],
-      });
-      setNucleiResult(res);
+      await api.streamNuclei(
+        {
+          target,
+          preset: activePreset,
+          severity: selectedSeverities,
+        },
+        {
+          onLog: (log) => {
+            setTerminalLogs((prev) => [
+              ...prev,
+              {
+                id: `${Date.now()}-${Math.random()}`,
+                level: log.level,
+                message: log.message,
+                timestamp: log.timestamp,
+              },
+            ]);
+          },
+          onFinding: (finding) => {
+            setNucleiResult((prev) => {
+              if (!prev) return null;
+              const exists = prev.findings.some(
+                (f) =>
+                  f.template_id === finding.template_id &&
+                  f.matched_at === finding.matched_at
+              );
+              if (exists) return prev;
+
+              const updatedFindings = [finding, ...prev.findings];
+              return {
+                ...prev,
+                total_findings: updatedFindings.length,
+                critical_count: updatedFindings.filter((f) => f.severity === "critical").length,
+                high_count: updatedFindings.filter((f) => f.severity === "high").length,
+                medium_count: updatedFindings.filter((f) => f.severity === "medium").length,
+                low_count: updatedFindings.filter((f) => f.severity === "low").length,
+                info_count: updatedFindings.filter((f) => f.severity === "info").length,
+                findings: updatedFindings,
+              };
+            });
+          },
+          onSummary: (summary) => {
+            setNucleiResult(summary);
+          },
+          onError: (err) => {
+            setErrorNuclei(err.message || "Gagal melakukan streaming audit Nuclei.");
+            setTerminalLogs((prev) => [
+              ...prev,
+              {
+                id: `${Date.now()}-err`,
+                level: "ERROR",
+                message: `Kesalahan stream: ${err.message || "Koneksi terputus"}`,
+                timestamp: new Date().toLocaleTimeString(),
+              },
+            ]);
+          },
+          onComplete: () => {
+            setLoadingNuclei(false);
+          },
+        },
+        controller.signal
+      );
     } catch (err: any) {
-      setErrorNuclei(err.message || "Gagal menjalankan pemindai Nuclei.");
+      if (!controller.signal.aborted) {
+        setErrorNuclei(err.message || "Gagal menghubungkan streaming audit Nuclei.");
+      }
     } finally {
       setLoadingNuclei(false);
     }
+  };
+
+  const handleAbortScan = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+      setLoadingNuclei(false);
+      setTerminalLogs((prev) => [
+        ...prev,
+        {
+          id: `${Date.now()}-abort`,
+          level: "WARN",
+          message: "Audit dihentikan oleh pengguna (ABORTED).",
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ]);
+    }
+  };
+
+  const handleClearTerminal = () => {
+    setTerminalLogs([]);
+  };
+
+  const handleCopyLogs = () => {
+    const raw = terminalLogs.map((l) => `[${l.timestamp}] [${l.level}] ${l.message}`).join("\n");
+    navigator.clipboard.writeText(raw);
+    setCopiedCurlId("all-logs");
+    setTimeout(() => setCopiedCurlId(null), 2000);
   };
 
   // Switch to Nuclei with selected subdomain
@@ -854,6 +993,83 @@ function DomainContent() {
               </span>
             </div>
 
+            {/* Preset Selector */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-mono font-medium text-[var(--mute)] uppercase tracking-wider block">
+                Pilih Mode &amp; Profil Audit:
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setNucleiPreset("default")}
+                  className={`p-3 rounded-[6px] border text-left transition-all cursor-pointer ${
+                    nucleiPreset === "default"
+                      ? "bg-[var(--s2)] border-[var(--acc)] shadow-sm"
+                      : "bg-[var(--s1)] border-[var(--line)] hover:border-zinc-700 opacity-80"
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    <span className="text-[12px] font-semibold text-[var(--ink)]">
+                      Scan Standar
+                    </span>
+                    <span className="px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 text-[9.5px] font-mono font-bold">
+                      OSINT
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[var(--mute)] mt-1 mb-0 leading-snug">
+                    Misconfig umum, open panels, file .env &amp; .git leak, dan takeover.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setNucleiPreset("wordpress")}
+                  className={`p-3 rounded-[6px] border text-left transition-all cursor-pointer ${
+                    nucleiPreset === "wordpress"
+                      ? "bg-[var(--s2)] border-violet-500 shadow-sm"
+                      : "bg-[var(--s1)] border-[var(--line)] hover:border-zinc-700 opacity-80"
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <ShieldAlert className="w-3.5 h-3.5 text-violet-400 shrink-0" />
+                    <span className="text-[12px] font-semibold text-[var(--ink)]">
+                      WordPress Recon
+                    </span>
+                    <span className="px-1.5 py-0.2 rounded bg-violet-500/20 text-violet-300 text-[9.5px] font-mono font-bold">
+                      PROBE
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[var(--mute)] mt-1 mb-0 leading-snug">
+                    User enum via REST API, XML-RPC pingback, debug.log, backup db, &amp; CVE.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setNucleiPreset("cve")}
+                  className={`p-3 rounded-[6px] border text-left transition-all cursor-pointer ${
+                    nucleiPreset === "cve"
+                      ? "bg-[var(--s2)] border-red-500 shadow-sm"
+                      : "bg-[var(--s1)] border-[var(--line)] hover:border-zinc-700 opacity-80"
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <Bug className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                    <span className="text-[12px] font-semibold text-[var(--ink)]">
+                      CVE &amp; RCE Audit
+                    </span>
+                    <span className="px-1.5 py-0.2 rounded bg-red-500/20 text-red-300 text-[9.5px] font-mono font-bold">
+                      EXPLOITS
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[var(--mute)] mt-1 mb-0 leading-snug">
+                    Remote code execution, SQLi, LFI, SSRF, &amp; high-impact exploit vectors.
+                  </p>
+                </button>
+              </div>
+            </div>
+
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -872,14 +1088,26 @@ function DomainContent() {
                     className="w-full bg-[var(--s2)] border border-[var(--line)] rounded-[6px] pl-10 pr-3 py-2 text-[13.5px] text-[var(--ink)] placeholder:text-[var(--mute)] focus:outline-none focus:border-[var(--acc)] font-mono"
                   />
                 </div>
-                <button
-                  type="submit"
-                  disabled={loadingNuclei}
-                  className="px-5 py-2 bg-[#ef4444] hover:opacity-90 text-white rounded-[6px] font-semibold text-[13px] transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer disabled:opacity-50 shadow-sm"
-                >
-                  {loadingNuclei ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Bug className="w-4 h-4" />}
-                  <span>{loadingNuclei ? "Memindai Kerentanan..." : "Jalankan Audit Nuclei"}</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="submit"
+                    disabled={loadingNuclei}
+                    className="px-5 py-2 bg-[#ef4444] hover:opacity-90 text-white rounded-[6px] font-semibold text-[13px] transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer disabled:opacity-50 shadow-sm"
+                  >
+                    {loadingNuclei ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Bug className="w-4 h-4" />}
+                    <span>{loadingNuclei ? "Streaming Audit..." : "Jalankan Audit Nuclei"}</span>
+                  </button>
+
+                  {loadingNuclei && (
+                    <button
+                      type="button"
+                      onClick={handleAbortScan}
+                      className="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 rounded-[6px] font-semibold text-[13px] transition-all cursor-pointer shrink-0"
+                    >
+                      Batal
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Severity Filter Toggles */}
@@ -916,6 +1144,150 @@ function DomainContent() {
                 })}
               </div>
             </form>
+          </div>
+
+          {/* ── LIVE TERMINAL LOG STREAM CONSOLE ── */}
+          <div className="bg-[#090b0e] border border-[var(--line)] rounded-[8px] overflow-hidden font-mono text-[11.5px]">
+            {/* Terminal Bar Header */}
+            <div className="flex items-center justify-between px-3.5 py-2 bg-[#0e1217] border-b border-[var(--line)] text-zinc-300 flex-wrap gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      loadingNuclei ? "bg-emerald-500 animate-ping" : "bg-zinc-600"
+                    }`}
+                  />
+                  <span
+                    className={`text-[11px] font-bold tracking-wider uppercase ${
+                      loadingNuclei ? "text-emerald-400" : "text-zinc-400"
+                    }`}
+                  >
+                    {loadingNuclei ? "● STREAM LIVE (ACTIVE)" : "● STANDBY"}
+                  </span>
+                </div>
+                <span className="text-zinc-600 hidden sm:inline">|</span>
+                <span className="text-[11px] text-zinc-400 hidden sm:inline">
+                  Target: <span className="text-zinc-200">{nucleiTarget || "—"}</span>
+                </span>
+                <span className="text-zinc-600 hidden sm:inline">|</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-semibold uppercase">
+                  {nucleiPreset}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAutoScrollTerminal(!autoScrollTerminal)}
+                  className={`px-2 py-0.5 rounded text-[10.5px] border transition-colors cursor-pointer ${
+                    autoScrollTerminal
+                      ? "bg-zinc-800 text-zinc-200 border-zinc-700"
+                      : "bg-transparent text-zinc-500 border-zinc-800 hover:text-zinc-300"
+                  }`}
+                  title="Otomatis bergulir ke pesan terbaru"
+                >
+                  Auto-scroll: {autoScrollTerminal ? "ON" : "OFF"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCopyLogs}
+                  disabled={terminalLogs.length === 0}
+                  className="px-2 py-0.5 rounded text-[10.5px] bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition-colors cursor-pointer disabled:opacity-40 flex items-center gap-1"
+                  title="Salin seluruh log terminal"
+                >
+                  <Copy className="w-3 h-3" />
+                  <span>{copiedCurlId === "all-logs" ? "Tersalin!" : "Salin Log"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleClearTerminal}
+                  disabled={terminalLogs.length === 0}
+                  className="px-2 py-0.5 rounded text-[10.5px] bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition-colors cursor-pointer disabled:opacity-40"
+                  title="Bersihkan buffer log terminal"
+                >
+                  Bersihkan
+                </button>
+
+                {loadingNuclei && (
+                  <button
+                    type="button"
+                    onClick={handleAbortScan}
+                    className="px-2.5 py-0.5 rounded text-[10.5px] bg-red-950/70 hover:bg-red-900 text-red-300 border border-red-800/80 transition-colors cursor-pointer font-bold"
+                  >
+                    Hentikan
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setShowTerminal(!showTerminal)}
+                  className="p-1 rounded text-zinc-400 hover:text-zinc-200 cursor-pointer"
+                  title={showTerminal ? "Sembunyikan Terminal" : "Tampilkan Terminal"}
+                >
+                  {showTerminal ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Terminal Body Output */}
+            {showTerminal && (
+              <div className="p-3.5 max-h-60 overflow-y-auto space-y-1 bg-[#07090b] text-zinc-300 scrollbar-thin">
+                {terminalLogs.length === 0 ? (
+                  <div className="text-zinc-600 text-[11px] py-4 text-center select-none font-mono">
+                    Konsol log terminal siap. Jalankan audit Nuclei untuk melihat streaming baris-per-baris secara realtime.
+                  </div>
+                ) : (
+                  terminalLogs.map((log) => {
+                    const lvl = log.level.toUpperCase();
+                    const isCrit = lvl.includes("CRITICAL");
+                    const isHigh = lvl.includes("HIGH");
+                    const isMed = lvl.includes("MEDIUM");
+                    const isWp = lvl.includes("WP-AUDIT");
+                    const isDone = lvl.includes("DONE");
+                    const isWarn = lvl.includes("WARN");
+
+                    return (
+                      <div key={log.id} className="leading-relaxed flex items-start gap-2 break-all font-mono">
+                        <span className="text-zinc-600 shrink-0 select-none">[{log.timestamp}]</span>
+                        <span
+                          className={`shrink-0 font-bold ${
+                            isCrit
+                              ? "text-red-400 bg-red-950/50 px-1 rounded"
+                              : isHigh
+                              ? "text-orange-400 font-semibold"
+                              : isMed
+                              ? "text-amber-400"
+                              : isWp
+                              ? "text-purple-400"
+                              : isDone
+                              ? "text-emerald-400"
+                              : isWarn
+                              ? "text-yellow-400"
+                              : "text-sky-400"
+                          }`}
+                        >
+                          [{log.level}]
+                        </span>
+                        <span
+                          className={`${
+                            isCrit
+                              ? "text-red-200 font-semibold"
+                              : isDone
+                              ? "text-emerald-300 font-bold"
+                              : "text-zinc-300"
+                          }`}
+                        >
+                          {log.message}
+                        </span>
+                      </div>
+                    );
+                  })
+                )}
+                <div ref={terminalBottomRef} />
+              </div>
+            )}
           </div>
 
           {errorNuclei && (
