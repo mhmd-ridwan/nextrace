@@ -27,6 +27,13 @@ async def lifespan(app: FastAPI):
     # Initialize SQLite database schema
     await init_db()
 
+    # Seed demo users unconditionally (idempotent)
+    from app.db.session import async_session_factory as _sf
+    from app.services.auth_service import ensure_demo_users
+
+    async with _sf() as _db:
+        await ensure_demo_users(_db)
+
     # Seed synthetic dataset for demonstration
     if settings.DEMO_MODE:
         from app.db.seed import seed_demo_data

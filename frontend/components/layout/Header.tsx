@@ -9,11 +9,12 @@ import {
   Moon,
   Sun,
   Shield,
-  ExternalLink,
-  Check,
   ChevronDown,
   Menu,
+  LogOut,
+  KeyRound,
 } from "lucide-react";
+import { useAuth, getRoleBadge } from "@/lib/auth";
 
 interface HeaderProps {
   onOpenMobileMenu?: () => void;
@@ -22,6 +23,7 @@ interface HeaderProps {
 export function Header({ onOpenMobileMenu }: HeaderProps) {
   const router = useRouter();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const { user, logout } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
@@ -242,16 +244,24 @@ export function Header({ onOpenMobileMenu }: HeaderProps) {
           }}
           className="flex items-center gap-2 p-1 rounded-lg hover:bg-[var(--s2)] transition-colors"
         >
-          <span className="w-8 h-8 rounded-full bg-[var(--acc)]/15 border border-[var(--acc)]/30 grid place-items-center font-bold text-[11.5px] font-mono text-[var(--acc)] select-none">
-            AN
+          <span className="w-8 h-8 rounded-full bg-[var(--acc)]/15 border border-[var(--acc)]/30 grid place-items-center font-bold text-[11.5px] font-mono text-[var(--acc)] select-none uppercase">
+            {user?.username?.slice(0, 2) ?? "??"}
           </span>
           <div className="text-left hidden md:block">
             <div className="text-[13px] font-semibold text-[var(--ink)] leading-tight">
-              Admin Nextrace
+              {user?.full_name ?? user?.username ?? "—"}
             </div>
-            <small className="block text-[11.5px] text-[var(--mute)] leading-[1.2]">
-              Superadmin Cyber OSINT
-            </small>
+            {user?.role && (() => {
+              const badge = getRoleBadge(user.role);
+              return (
+                <small
+                  className="block text-[10.5px] font-semibold font-mono leading-[1.2] tracking-wide"
+                  style={{ color: badge.color }}
+                >
+                  {badge.label}
+                </small>
+              );
+            })()}
           </div>
           <ChevronDown className="w-3.5 h-3.5 text-[var(--mute)] hidden md:block" />
         </button>
@@ -260,10 +270,10 @@ export function Header({ onOpenMobileMenu }: HeaderProps) {
           <div className="fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 mt-2 sm:w-64 bg-[var(--s1)] border border-[var(--line)] rounded-lg shadow-xl z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-150">
             <div className="px-3 py-2 border-b border-[var(--line)] mb-1">
               <p className="text-[12.5px] font-medium text-[var(--ink)]">
-                Admin Nextrace
+                {user?.full_name ?? user?.username}
               </p>
-              <p className="text-[11px] text-[var(--mute)] font-mono">
-                admin@nextrace.gov.id
+              <p className="text-[11px] text-[var(--mute)] font-mono truncate">
+                {user?.email}
               </p>
             </div>
             <Link
@@ -273,13 +283,21 @@ export function Header({ onOpenMobileMenu }: HeaderProps) {
             >
               <Shield className="w-3.5 h-3.5" /> Ruang Kerja Kasus
             </Link>
+            <Link
+              href="/settings"
+              onClick={() => setShowUserMenu(false)}
+              className="flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded text-[var(--mute)] hover:text-[var(--ink)] hover:bg-[var(--s2)]"
+            >
+              <KeyRound className="w-3.5 h-3.5" /> Ganti Kata Sandi
+            </Link>
             <div className="border-t border-[var(--line)] my-1" />
-            <div className="px-3 py-1 text-[10.5px] text-[var(--mute)] flex justify-between items-center">
-              <span>Status Sistem</span>
-              <span className="text-[var(--lo)] font-semibold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--lo)]" /> Siap
-              </span>
-            </div>
+            <button
+              type="button"
+              onClick={() => { setShowUserMenu(false); logout(); }}
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded text-[var(--hi)] hover:bg-[var(--hi)]/10 transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5" /> Keluar
+            </button>
           </div>
         )}
       </div>

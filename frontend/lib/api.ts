@@ -63,6 +63,13 @@ async function request<T>(
     }
   }
 
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("nextrace_access_token");
+    if (token && !headers.has("Authorization")) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+  }
+
   try {
     const res = await fetch(url, {
       ...options,

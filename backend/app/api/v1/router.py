@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from app.api.v1.endpoints import (
     aliases,
     attack_surface,
+    auth,
     buzzer,
     evidence,
     health,
@@ -19,6 +20,7 @@ from app.api.v1.endpoints import (
 api_v1_router = APIRouter()
 
 api_v1_router.include_router(health.router, prefix="/health", tags=["Health & System"])
+api_v1_router.include_router(auth.router, prefix="/auth", tags=["Module Auth: Authentication & Users"])
 api_v1_router.include_router(leak.router, prefix="/leak", tags=["Module A: Leak Tracer"])
 api_v1_router.include_router(aliases.router, prefix="/aliases", tags=["Module A: Email Aliases"])
 api_v1_router.include_router(impersonator.router, prefix="/impersonator", tags=["Module B: Impersonation Hunter"])

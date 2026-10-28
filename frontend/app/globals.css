@@ -102,3 +102,23 @@ table {
 .animate-scan-grid-pulse {
   animation: scan-grid-pulse 1.8s ease-in-out infinite;
 }
+
+/* ── Prevent browser autofill white box override in dark theme ── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #0e1012 inset !important;
+  -webkit-text-fill-color: #e5e7e9 !important;
+  caret-color: #86a8d0 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+[data-theme="light"] input:-webkit-autofill,
+[data-theme="light"] input:-webkit-autofill:hover, 
+[data-theme="light"] input:-webkit-autofill:focus, 
+[data-theme="light"] input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #1a1d20 !important;
+  caret-color: #3d6694 !important;
+}
