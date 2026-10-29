@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
-from PIL import ExifTags, Image
+from PIL import ExifTags, Image, ImageDraw
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,7 +19,11 @@ from app.core.config import get_settings
 from app.core.exceptions import ValidationError
 from app.db.session import get_db
 from app.schemas.evidence import EvidenceCreateRequest, EvidenceResponse
-from app.schemas.image import GlobalImageScanResponse, ImageForensicsResponse
+from app.schemas.image import (
+    GlobalImageScanResponse,
+    ImageComparisonMetrics,
+    ImageForensicsResponse,
+)
 from app.services.evidence_service import EvidenceService
 from app.services.image_forensics_service import ImageForensicsService
 
@@ -161,7 +165,7 @@ async def get_forensic_sample(sample_type: str):
 )
 async def scan_image_global(
     file: UploadFile = File(...),
-    investigation_id: str = Form("inv-jokowi-001"),
+    investigation_id: str | None = Form(None),
     threshold: float = Form(85.0),
     db: AsyncSession = Depends(get_db),
 ):
@@ -200,7 +204,7 @@ async def scan_image_global(
 )
 async def scan_sample_global(
     sample_type: str,
-    investigation_id: str = Query("inv-jokowi-001"),
+    investigation_id: str | None = Query(None),
     threshold: float = Query(85.0),
     db: AsyncSession = Depends(get_db),
 ):
@@ -283,7 +287,7 @@ async def scan_sample_global(
 
 @router.post("/vault", response_model=EvidenceResponse, summary="Lock image analysis to evidence vault")
 async def vault_image_evidence(
-    investigation_id: str = Form("inv-jokowi-001"),
+    investigation_id: str | None = Form(None),
     file_name: str = Form(...),
     sha256_hash: str = Form(...),
     metadata_json: str = Form(...),
@@ -330,3 +334,89 @@ async def vault_image_evidence(
         fname = f"forensic_{file_name}.json"
 
     return await evidence_service.create_evidence(db, data, file_bytes, fname)
+
+
+@router.post(
+    "/compare",
+    response_model=ImageComparisonMetrics,
+    summary="Compare two images via pHash & spectral analysis",
+)
+async def compare_two_images(
+    file_a: UploadFile = File(...),
+    file_b: UploadFile = File(...),
+):
+    """
+    Ingest two images, extract perceptual & difference hashes, and compute
+    Hamming distance and visual similarity score percentage.
+    """
+    settings = get_settings()
+
+    for f in (file_a, file_b):
+        if f.content_type and not f.content_type.startswith("image/"):
+            raise ValidationError(f"Tipe berkas tidak didukung: {f.content_type}. Harap unggah berkas gambar.")
+
+    content_a = await file_a.read()
+    content_b = await file_b.read()
+
+    max_size = settings.max_upload_size_bytes
+    if len(content_a) > max_size or len(content_b) > max_size:
+        raise ValidationError(f"Ukuran berkas melebihi batas maksimum {settings.MAX_UPLOAD_SIZE_MB}MB")
+
+    try:
+        return forensics_service.compare_two_images(
+            content_a,
+            file_a.filename or "gambar_a.jpg",
+            content_b,
+            file_b.filename or "gambar_b.jpg",
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gagal melakukan komparasi spektral citra: {e}") from e
+
+
+@router.get(
+    "/compare/samples/{preset}",
+    response_model=ImageComparisonMetrics,
+    summary="Get curated 1-on-1 comparison sample",
+)
+async def get_compare_sample(preset: str):
+    """
+    Generate authentic 1-on-1 visual comparison samples:
+    - 'identical': Two identical photos (100% match, 0 bit difference)
+    - 'modified': Photo vs compressed / re-encoded clone (~93% match, 4 bit distance)
+    - 'different': Two completely distinct structured images (<60% match)
+    """
+    buf_a = io.BytesIO()
+    buf_b = io.BytesIO()
+
+    # Base profile icon with distinct geometric features
+    img_a = Image.new("RGB", (300, 300), color=(240, 240, 240))
+    draw_a = ImageDraw.Draw(img_a)
+    draw_a.ellipse([50, 50, 250, 250], fill=(20, 100, 220), outline=(0, 0, 0))
+    draw_a.rectangle([100, 100, 200, 200], fill=(255, 200, 0))
+
+    if preset == "identical":
+        img_a.save(buf_a, format="JPEG", quality=95)
+        img_a.save(buf_b, format="JPEG", quality=95)
+        name_a, name_b = "avatar_resmi.jpg", "avatar_klon_identik.jpg"
+    elif preset == "modified":
+        img_a.save(buf_a, format="PNG")
+        img_a.save(buf_b, format="JPEG", quality=70)
+        name_a, name_b = "profil_original.png", "profil_suspek_recompress.jpg"
+    else:  # different
+        img_a.save(buf_a, format="JPEG", quality=95)
+        img_different = Image.new("RGB", (300, 300), color=(15, 23, 42))
+        draw_diff = ImageDraw.Draw(img_different)
+        for i in range(0, 300, 30):
+            draw_diff.line([(0, i), (300, i)], fill=(240, 240, 240), width=10)
+        img_different.save(buf_b, format="JPEG", quality=95)
+        name_a, name_b = "subjek_a_target.jpg", "subjek_b_non_terkait.jpg"
+
+    return forensics_service.compare_two_images(
+        buf_a.getvalue(),
+        name_a,
+        buf_b.getvalue(),
+        name_b,
+    )
+

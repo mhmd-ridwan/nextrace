@@ -59,7 +59,7 @@ export default function SmartAliasPage() {
 
   const loadAliases = async () => {
     try {
-      const list = await api.listAliases("inv-jokowi-001");
+      const list = await api.listAliases();
       setAliases(list);
       if (list.length > 0) {
         selectAlias(list[0]);

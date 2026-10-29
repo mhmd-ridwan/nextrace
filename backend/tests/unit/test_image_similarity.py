@@ -7,6 +7,7 @@ import io
 import pytest
 from PIL import Image
 
+from app.services.image_forensics_service import ImageForensicsService
 from app.services.image_similarity import ImageSimilarityService
 
 
@@ -92,3 +93,37 @@ class TestImageSimilarity:
         assert result.hash_bit_length == 64
         expected_sim = round(100.0 * (1.0 - result.hash_distance / 64), 2)
         assert result.similarity_percentage == expected_sim
+
+    def test_forensics_compare_two_images_identical(self):
+        forensics = ImageForensicsService()
+        img_bytes = create_test_image((30, 144, 255), (100, 100))
+        metrics = forensics.compare_two_images(img_bytes, "a.png", img_bytes, "b.png")
+
+        assert metrics.phash_hamming_distance == 0
+        assert metrics.similarity_score == 100.0
+        assert metrics.match_classification == "EXACT_MATCH"
+        assert metrics.file_a_name == "a.png"
+        assert metrics.file_b_name == "b.png"
+
+    def test_forensics_compare_two_images_different(self):
+        forensics = ImageForensicsService()
+        # Create pattern image 1
+        img1 = Image.new("RGB", (64, 64), color=(255, 255, 255))
+        for x in range(32):
+            for y in range(32):
+                img1.putpixel((x, y), (0, 0, 0))
+        buf1 = io.BytesIO()
+        img1.save(buf1, format="PNG")
+
+        # Create pattern image 2
+        img2 = Image.new("RGB", (64, 64), color=(0, 0, 0))
+        for x in range(32, 64):
+            for y in range(32, 64):
+                img2.putpixel((x, y), (255, 255, 255))
+        buf2 = io.BytesIO()
+        img2.save(buf2, format="PNG")
+
+        metrics = forensics.compare_two_images(buf1.getvalue(), "p1.png", buf2.getvalue(), "p2.png")
+        assert metrics.phash_hamming_distance > 10
+        assert metrics.match_classification == "DIFFERENT"
+        assert metrics.similarity_score < 85.0

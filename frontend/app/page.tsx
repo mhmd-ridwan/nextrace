@@ -172,7 +172,6 @@ export default function DashboardPage() {
         const cleanHandle = q.replace(/^@/, "");
         const res = await api.autoScanGlobal({
           target_url: cleanHandle,
-          investigation_id: "inv-jokowi-001",
           max_candidates: 6,
         });
 
@@ -188,7 +187,7 @@ export default function DashboardPage() {
               `Total ${res.candidates_discovered} akun lookalike & klon terdeteksi lintas platform.`,
               `${res.high_risk_count} akun terdeteksi dengan kemiripan visual pHash tinggi (>90%).`,
               `Platform terpindai: ${res.platforms_scanned.join(", ")}.`,
-              `Umpan kontak WhatsApp & pancingan bansos terdeteksi pada bio profil suspek.`,
+              `Umpan kontak WhatsApp & pancingan terdeteksi pada bio profil suspek.`,
             ],
             findingsCount: res.candidates_discovered,
             actionUrl: target.href,
@@ -196,7 +195,7 @@ export default function DashboardPage() {
           setIsScanning(false);
         }, 1100);
       } else if (target.type === "phone") {
-        const leakRes = await api.checkLeak(q, "phone", "inv-jokowi-001");
+        const leakRes = await api.checkLeak(q, "phone");
         setTimeout(() => {
           setScanStage(4);
           const totalInc = leakRes.total_incidents ?? 1;
@@ -208,7 +207,7 @@ export default function DashboardPage() {
             severity: leakRes.risk_score >= 80 ? "CRITICAL" : "HIGH",
             details: [
               `Operator Seluler: Teridentifikasi sebagai nomor aktif Indonesia.`,
-              `Korelasi Akun WhatsApp Penipuan mencatut program resmi Pak Jokowi.`,
+              `Korelasi Akun WhatsApp terdeteksi pada rekam jejak telemetri.`,
               `Status Rekam Jejak: ${totalInc} insiden kebocoran data pendaftaran seluler terasosiasi.`,
               `Rekomendasi: Blokir nomor kontak dan laporkan ke penyedia telekomunikasi.`,
             ],
@@ -218,7 +217,7 @@ export default function DashboardPage() {
           setIsScanning(false);
         }, 1100);
       } else if (target.type === "email") {
-        const leakRes = await api.checkLeak(q, "email", "inv-jokowi-001");
+        const leakRes = await api.checkLeak(q, "email");
         setTimeout(() => {
           setScanStage(4);
           const totalInc = leakRes.total_incidents ?? 3;

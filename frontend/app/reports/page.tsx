@@ -62,7 +62,7 @@ export default function ReportsPage() {
   const loadReports = async () => {
     setLoading(true);
     try {
-      const res = await api.listReports("inv-jokowi-001");
+      const res = await api.listReports();
       setReports(res.reports || []);
     } catch {
       // offline fallback

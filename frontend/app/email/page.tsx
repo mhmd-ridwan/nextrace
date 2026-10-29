@@ -12,15 +12,20 @@ import {
   CheckCircle2,
   Lock,
   ExternalLink,
-  Calendar,
   Layers,
   KeyRound,
   RefreshCw,
-  Sparkles,
   Database,
   Briefcase,
   AlertOctagon,
-  ArrowRight,
+  Globe,
+  Server,
+  User,
+  Hash,
+  ShieldCheck,
+  XCircle,
+  Copy,
+  Check,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { LeakCheckResponse, Investigation } from "@/types";
@@ -30,7 +35,7 @@ import { Modal, ModalDetailItem } from "@/components/ui/Modal";
 function EmailContent() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("query") || searchParams.get("q") || "bantuan.presiden.jokowi@gmail.com";
-  const initialCaseId = searchParams.get("investigation_id") || searchParams.get("case_id") || "inv-jokowi-001";
+  const initialCaseId = searchParams.get("investigation_id") || searchParams.get("case_id") || "";
 
   const [emailInput, setEmailInput] = useState(initialQuery);
   const [selectedCaseId, setSelectedCaseId] = useState(initialCaseId);
@@ -39,6 +44,7 @@ function EmailContent() {
   const [vaulting, setVaulting] = useState(false);
   const [result, setResult] = useState<LeakCheckResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [copiedHash, setCopiedHash] = useState(false);
 
   // Evidence Seal Modal state
   const [modalConfig, setModalConfig] = useState<{
@@ -63,7 +69,6 @@ function EmailContent() {
         const res = await api.listInvestigations(1, 50);
         if (res.items && res.items.length > 0) {
           setInvestigations(res.items);
-          // If current case not in list, keep or set first
           if (!res.items.some((i) => i.id === selectedCaseId)) {
             setSelectedCaseId(res.items[0].id);
           }
@@ -109,13 +114,20 @@ function EmailContent() {
     }
   };
 
+  const handleCopyHash = (hash: string) => {
+    navigator.clipboard.writeText(hash);
+    setCopiedHash(true);
+    setTimeout(() => setCopiedHash(false), 2000);
+  };
+
   const handleVaultEvidence = async () => {
     if (!result) return;
     setVaulting(true);
 
     try {
+      const caseIdToUse = selectedCaseId || "inv-general-001";
       const formData = new FormData();
-      formData.append("investigation_id", selectedCaseId);
+      formData.append("investigation_id", caseIdToUse);
       formData.append("evidence_type", "document");
       formData.append("source_url", result.query || emailInput);
       formData.append("collection_method", "osint_email_breach_audit");
@@ -123,7 +135,7 @@ function EmailContent() {
       const payload = {
         target_email: result.query || emailInput,
         identifier_type: "email",
-        investigation_id: selectedCaseId,
+        investigation_id: caseIdToUse,
         risk_score: result.risk_score,
         risk_level: result.risk_level,
         total_incidents: result.total_incidents,
@@ -131,6 +143,9 @@ function EmailContent() {
         disposable_service: result.intelligence_metadata?.disposable_service || null,
         fraud_risk_score: result.intelligence_metadata?.fraud_risk_score || null,
         threat_vectors: result.intelligence_metadata?.threat_vectors || [],
+        dns_security: result.intelligence_metadata?.dns_security || null,
+        gravatar_profile: result.intelligence_metadata?.gravatar_profile || null,
+        email_analysis: result.intelligence_metadata?.email_analysis || null,
         incidents_summary: (result.incidents || []).map((inc) => ({
           source_name: inc.source_name,
           breach_date: inc.breach_date,
@@ -148,16 +163,16 @@ function EmailContent() {
       setModalConfig({
         isOpen: true,
         title: "Bukti Forensik Email Berhasil Disegel",
-        description: `Hasil audit kebocoran untuk ${result.query || emailInput} telah resmi diamankan ke Evidence Vault dengan segel integritas kriptografis SHA-256.`,
+        description: `Hasil audit kebocoran dan verifikasi protokol untuk ${result.query || emailInput} telah resmi diamankan ke Evidence Vault dengan segel integritas kriptografis SHA-256.`,
         variant: "success",
         confirmText: "Buka Loker Bukti",
         cancelText: "Tutup",
         onConfirm: () => {
-          window.location.href = `/evidence?investigation_id=${selectedCaseId}`;
+          window.location.href = selectedCaseId ? `/evidence?investigation_id=${selectedCaseId}` : "/evidence";
         },
         details: [
           { label: "Nomor Registrasi Bukti", value: evidence.evidence_id },
-          { label: "ID Kasus Terkait", value: selectedCaseId },
+          { label: "ID Kasus Terkait", value: selectedCaseId || "Kasus Umum (General Vault)" },
           { label: "Hash Kriptografis (SHA-256)", value: evidence.file_hash_sha256 || "TERVERIFIKASI" },
           { label: "Metode Akuisisi", value: evidence.collection_method || "osint_email_breach_audit" },
           { label: "Waktu Penyegelan", value: new Date(evidence.created_at).toLocaleString("id-ID") },
@@ -184,6 +199,10 @@ function EmailContent() {
   const isDisposable = Boolean(result?.intelligence_metadata?.is_disposable_email);
   const disposableService = result?.intelligence_metadata?.disposable_service;
 
+  const dns = result?.intelligence_metadata?.dns_security;
+  const gravatar = result?.intelligence_metadata?.gravatar_profile;
+  const emailAnalysis = result?.intelligence_metadata?.email_analysis;
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-[1540px] mx-auto min-w-0 font-sans space-y-5 sm:space-y-6">
       {/* ── Page Header ── */}
@@ -197,10 +216,10 @@ function EmailContent() {
           </div>
           <h1 className="text-[20px] sm:text-[22px] font-bold text-[var(--ink)] tracking-[-0.01em] m-0 flex items-center gap-2">
             <Mail className="w-5 h-5 text-[var(--acc)] stroke-[1.8]" />
-            Email — Audit Kebocoran Kredensial
+            Email — Audit Kebocoran Kredensial &amp; Protokol
           </h1>
           <p className="mt-1 mb-0 text-[12.5px] sm:text-[13px] text-[var(--mute)]">
-            Pemeriksaan data breach terhadap insiden kebocoran kredensial publik, password dump, dan korelasi domain botnet/disposable.
+            Pemeriksaan data breach terhadap insiden kebocoran kredensial, verifikasi DNS anti-spoofing (MX/SPF/DMARC), serta profil Gravatar footprint.
           </p>
         </div>
 
@@ -221,8 +240,8 @@ function EmailContent() {
                   </option>
                 ))
               ) : (
-                <option value="inv-jokowi-001" className="bg-[var(--s1)] text-[var(--ink)]">
-                  Operasi Siber Jokowi-RI (inv-jokowi-001)
+                <option value="" className="bg-[var(--s1)] text-[var(--mute)]">
+                  Tanpa Kasus Terkait (Investigasi Terbuka)
                 </option>
               )}
             </select>
@@ -264,10 +283,10 @@ function EmailContent() {
         <div className="flex items-center gap-2 pt-3 text-[12px] text-[var(--mute)] overflow-x-auto">
           <span className="shrink-0 font-medium">Contoh Target:</span>
           {[
-            { label: "user@gmail.com", desc: "Reguler" },
-            { label: "protokoler@presidenri.go.id", desc: "Pemerintah" },
-            { label: "botnet_syndicate@tempmail.com", desc: "Disposable / Burner" },
-            { label: "shadow_op@guerrillamail.com", desc: "Burner Mail" },
+            { label: "bantuan.presiden.jokowi@gmail.com", desc: "Gmail (Dot-Trick)" },
+            { label: "protokoler@presidenri.go.id", desc: "Pemerintah RI" },
+            { label: "beau@dentedreality.com.au", desc: "Gravatar Active" },
+            { label: "botnet_syndicate@tempmail.com", desc: "Burner Mail" },
           ].map((sample) => (
             <button
               key={sample.label}
@@ -294,7 +313,7 @@ function EmailContent() {
         </div>
       )}
 
-      {/* ── Disposable / Temp-Mail Threat Banner (High Severity Alert) ── */}
+      {/* ── Disposable / Temp-Mail Threat Banner ── */}
       {isDisposable && (
         <div className="p-5 bg-[var(--hi)]/10 border-2 border-[var(--hi)] rounded-[10px] space-y-3">
           <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -378,10 +397,10 @@ function EmailContent() {
             <KeyRound className="w-4 h-4 text-[var(--mute)]" />
           </div>
           <b className="block text-[20px] font-semibold text-[var(--ink)] mt-2 font-mono truncate">
-            {isDisposable ? "Burner / Disposable" : "Domain Reguler"}
+            {emailAnalysis?.domain_category || (isDisposable ? "Burner / Disposable" : "Domain Reguler")}
           </b>
           <small className="text-[11.5px] text-[var(--mute)]">
-            {isDisposable ? "Layanan sekali pakai tanpa KYC" : "Penyedia email standar"}
+            {isDisposable ? "Layanan sekali pakai tanpa KYC" : "Penyedia email terverifikasi"}
           </small>
         </section>
 
@@ -403,6 +422,245 @@ function EmailContent() {
             )}
             <span>{vaulting ? "Menyegel Kriptografis..." : "Kunci ke Evidence Vault"}</span>
           </button>
+        </section>
+      </div>
+
+      {/* ── Advanced Email OSINT & Protocol Telemetry Grid ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Module A: DNS Anti-Spoofing & Protocol Security */}
+        <section className="bg-[var(--s1)] border border-[var(--line)] rounded-[10px] p-5 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-[var(--line)]">
+            <div className="flex items-center gap-2">
+              <Globe className="w-4 h-4 text-[var(--acc)]" />
+              <h2 className="text-[14.5px] font-semibold text-[var(--ink)] m-0">
+                Audit DNS &amp; Protokol Anti-Spoofing
+              </h2>
+            </div>
+            {dns && (
+              <span
+                className={`px-2 py-0.5 rounded text-[11px] font-mono font-semibold border ${
+                  dns.is_spoofable
+                    ? "bg-[var(--hi)]/15 border-[var(--hi)]/40 text-[var(--hi)]"
+                    : "bg-[var(--lo)]/15 border-[var(--lo)]/40 text-[var(--lo)]"
+                }`}
+              >
+                {dns.is_spoofable ? "Rentan Pemalsuan (Spoofable)" : "Proteksi Ketat (Anti-Spoofing)"}
+              </span>
+            )}
+          </div>
+
+          {dns ? (
+            <div className="space-y-3.5 text-[12.5px]">
+              {/* Verdict Banner */}
+              <div
+                className={`p-3 rounded-[8px] border text-[12px] font-mono flex items-start gap-2.5 ${
+                  dns.is_spoofable
+                    ? "bg-[var(--hi)]/10 border-[var(--hi)]/30 text-[var(--hi)]"
+                    : "bg-[var(--lo)]/10 border-[var(--lo)]/30 text-[var(--lo)]"
+                }`}
+              >
+                {dns.is_spoofable ? (
+                  <XCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                ) : (
+                  <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
+                )}
+                <div>
+                  <strong className="block font-semibold">Kesimpulan Keamanan: {dns.security_verdict}</strong>
+                  <span className="text-[11.5px] opacity-90">
+                    {dns.is_spoofable
+                      ? "Domain ini tidak menerapkan DMARC secara ketat (p=none/hilang). Pihak ketiga dapat mengirimkan email atas nama domain ini ke mail server korban."
+                      : "Domain ini menerapkan kebijakan SPF dan DMARC ketat. Server penerima akan menolak atau mengkarantina email yang dipalsukan pihak asing."}
+                  </span>
+                </div>
+              </div>
+
+              {/* Protocol Metrics Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 bg-[var(--s2)] border border-[var(--line)] rounded-[8px] space-y-1">
+                  <div className="flex justify-between items-center text-[var(--mute)] text-[11.5px]">
+                    <span>DMARC Policy</span>
+                    <Shield className="w-3.5 h-3.5 text-[var(--mute)]" />
+                  </div>
+                  <div className="font-mono text-[14px] font-bold text-[var(--ink)] uppercase">
+                    {dns.dmarc_policy}
+                  </div>
+                  <div className="text-[11px] text-[var(--mute)] font-mono truncate" title={dns.dmarc_record || "None"}>
+                    {dns.dmarc_record ? dns.dmarc_record.substring(0, 32) + "..." : "Record tidak ditemukan"}
+                  </div>
+                </div>
+
+                <div className="p-3 bg-[var(--s2)] border border-[var(--line)] rounded-[8px] space-y-1">
+                  <div className="flex justify-between items-center text-[var(--mute)] text-[11.5px]">
+                    <span>SPF Configuration</span>
+                    <KeyRound className="w-3.5 h-3.5 text-[var(--mute)]" />
+                  </div>
+                  <div className="font-mono text-[14px] font-bold text-[var(--ink)]">
+                    {dns.spf_policy}
+                  </div>
+                  <div className="text-[11px] text-[var(--mute)] font-mono truncate" title={dns.spf_record || "None"}>
+                    {dns.spf_record ? dns.spf_record.substring(0, 32) + "..." : "Record tidak ditemukan"}
+                  </div>
+                </div>
+              </div>
+
+              {/* MX Records List */}
+              <div className="p-3 bg-[var(--s2)] border border-[var(--line)] rounded-[8px] space-y-2">
+                <div className="flex justify-between items-center text-[12px] text-[var(--mute)] font-medium">
+                  <span className="flex items-center gap-1.5">
+                    <Server className="w-3.5 h-3.5 text-[var(--acc)]" />
+                    Mail Exchange (MX) Server Aktif
+                  </span>
+                  <span className="font-mono text-[11px] text-[var(--ink)]">
+                    {dns.mx_records.length} Exchange
+                  </span>
+                </div>
+                {dns.mx_records.length > 0 ? (
+                  <ul className="m-0 p-0 list-none space-y-1 font-mono text-[11.5px]">
+                    {dns.mx_records.map((mx, idx) => (
+                      <li
+                        key={idx}
+                        className="px-2 py-1 bg-[var(--s1)] border border-[var(--line)] rounded-[4px] text-[var(--ink)] flex items-center justify-between"
+                      >
+                        <span className="truncate">{mx}</span>
+                        <CheckCircle2 className="w-3 h-3 text-[var(--lo)] shrink-0 ml-2" />
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="text-[11.5px] text-[var(--mute)] font-mono">
+                    Tidak ditemukan Mail Server MX untuk domain ini.
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="py-8 text-center text-[var(--mute)] text-[12.5px] font-mono">
+              Memuat status audit DNS domain...
+            </div>
+          )}
+        </section>
+
+        {/* Module B: OSINT Identity Footprint (Gravatar & Format Analysis) */}
+        <section className="bg-[var(--s1)] border border-[var(--line)] rounded-[10px] p-5 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-[var(--line)]">
+            <div className="flex items-center gap-2">
+              <User className="w-4 h-4 text-[var(--acc)]" />
+              <h2 className="text-[14.5px] font-semibold text-[var(--ink)] m-0">
+                Profil OSINT &amp; Jejak Identitas
+              </h2>
+            </div>
+            {gravatar && (
+              <span
+                className={`px-2 py-0.5 rounded text-[11px] font-mono font-semibold border ${
+                  gravatar.has_gravatar
+                    ? "bg-[var(--lo)]/15 border-[var(--lo)]/40 text-[var(--lo)]"
+                    : "bg-[var(--s2)] border-[var(--line)] text-[var(--mute)]"
+                }`}
+              >
+                {gravatar.has_gravatar ? "Gravatar Terdaftar" : "Tidak Ada Gravatar"}
+              </span>
+            )}
+          </div>
+
+          <div className="space-y-3.5">
+            {/* Gravatar Profile Card */}
+            <div className="p-3.5 bg-[var(--s2)] border border-[var(--line)] rounded-[8px] flex items-center gap-3.5">
+              {gravatar?.has_gravatar && gravatar.avatar_url ? (
+                <img
+                  src={gravatar.avatar_url}
+                  alt="Gravatar Avatar"
+                  className="w-14 h-14 rounded-full border border-[var(--line)] object-cover shrink-0 bg-[var(--s1)]"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded-full bg-[var(--s1)] border border-[var(--line)] grid place-items-center text-[var(--mute)] shrink-0 font-mono text-[18px] font-bold">
+                  {emailInput.charAt(0).toUpperCase()}
+                </div>
+              )}
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[14px] font-semibold text-[var(--ink)] truncate">
+                    {gravatar?.display_name || emailInput.split("@")[0]}
+                  </span>
+                  {gravatar?.profile_url && (
+                    <a
+                      href={gravatar.profile_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[var(--acc)] hover:underline inline-flex items-center gap-0.5 text-[11.5px]"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+                <div className="text-[11.5px] text-[var(--mute)] truncate">
+                  {gravatar?.job_title ? `${gravatar.job_title} ` : ""}
+                  {gravatar?.company ? `@ ${gravatar.company} ` : ""}
+                  {gravatar?.location ? `&bull; ${gravatar.location}` : ""}
+                  {!gravatar?.has_gravatar && "Tidak memiliki avatar publik Gravatar"}
+                </div>
+                {gravatar?.email_hash && (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span className="text-[10.5px] font-mono text-[var(--mute)]">
+                      MD5: <code className="text-[var(--ink)]">{gravatar.email_hash}</code>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyHash(gravatar.email_hash || "")}
+                      className="text-[var(--mute)] hover:text-[var(--ink)] transition-colors p-0.5"
+                      title="Salin MD5 Hash"
+                    >
+                      {copiedHash ? <Check className="w-3 h-3 text-[var(--lo)]" /> : <Copy className="w-3 h-3" />}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Email Syntax & Alias Trick Analysis */}
+            <div className="p-3 bg-[var(--s2)] border border-[var(--line)] rounded-[8px] space-y-2 text-[12px]">
+              <div className="text-[12px] font-medium text-[var(--ink)] flex items-center justify-between">
+                <span>Struktur &amp; Analisis Manipulasi Alamat</span>
+                <span className="px-1.5 py-0.2 rounded bg-[var(--s1)] border border-[var(--line)] text-[10.5px] font-mono text-[var(--mute)]">
+                  RFC 5322 Standards
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11.5px] font-mono">
+                <div className="p-2 bg-[var(--s1)] border border-[var(--line)] rounded-[6px]">
+                  <span className="text-[var(--mute)] block text-[10.5px]">Canonical Email:</span>
+                  <strong className="text-[var(--ink)] truncate block">
+                    {emailAnalysis?.canonical_email || emailInput}
+                  </strong>
+                </div>
+
+                <div className="p-2 bg-[var(--s1)] border border-[var(--line)] rounded-[6px]">
+                  <span className="text-[var(--mute)] block text-[10.5px]">Domain Provider:</span>
+                  <strong className="text-[var(--ink)] truncate block">
+                    {emailAnalysis?.domain || (emailInput.split("@")[1] || "N/A")}
+                  </strong>
+                </div>
+              </div>
+
+              {emailAnalysis?.has_dot_trick && (
+                <div className="p-2.5 bg-[var(--hi)]/10 border border-[var(--hi)]/30 rounded-[6px] text-[11.5px] text-[var(--hi)] flex items-start gap-2">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Terdeteksi Gmail Dot-Trick:</strong> Titik pada username diabaikan oleh Google Mail. Pelaku sering menggunakan variasi titik untuk mendaftar akun ganda secara massal pada platform web.
+                  </span>
+                </div>
+              )}
+
+              {emailAnalysis?.has_plus_addressing && (
+                <div className="p-2.5 bg-[var(--acc)]/10 border border-[var(--acc)]/30 rounded-[6px] text-[11.5px] text-[var(--acc)] flex items-start gap-2">
+                  <Layers className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Plus-Addressing Terdeteksi:</strong> Tag <code>+{emailAnalysis.plus_tag}</code> merupakan sub-alamat dari akun dasar <code>{emailAnalysis.base_local_part}</code>.
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
         </section>
       </div>
 

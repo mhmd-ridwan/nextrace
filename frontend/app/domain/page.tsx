@@ -326,7 +326,7 @@ function DomainContent() {
 
     try {
       const formData = new FormData();
-      formData.append("investigation_id", "inv-jokowi-001");
+      formData.append("investigation_id", "inv-general-001");
       formData.append("evidence_type", "document");
       formData.append(
         "source_url",

@@ -17,6 +17,7 @@ import {
   Finding,
   GeneratedReport,
   GlobalImageScanResponse,
+  ImageComparisonMetrics,
   ImageForensicsResponse,
   InboundEvent,
   Investigation,
@@ -684,12 +685,12 @@ export const api = {
 
   async scanImageGlobal(
     file: File,
-    investigationId = "inv-jokowi-001",
+    investigationId = "",
     threshold = 85.0
   ): Promise<GlobalImageScanResponse> {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("investigation_id", investigationId);
+    if (investigationId) formData.append("investigation_id", investigationId);
     formData.append("threshold", String(threshold));
     return request("/image/scan-global", {
       method: "POST",
@@ -699,14 +700,29 @@ export const api = {
 
   async getGlobalImageScanSample(
     sampleType: string,
-    investigationId = "inv-jokowi-001",
+    investigationId = "",
     threshold = 85.0
   ): Promise<GlobalImageScanResponse> {
-    const query = new URLSearchParams({
-      investigation_id: investigationId,
+    const params: Record<string, string> = {
       threshold: String(threshold),
-    });
+    };
+    if (investigationId) params.investigation_id = investigationId;
+    const query = new URLSearchParams(params);
     return request(`/image/scan-global/sample/${sampleType}?${query.toString()}`);
+  },
+
+  async compareImages(fileA: File, fileB: File): Promise<ImageComparisonMetrics> {
+    const formData = new FormData();
+    formData.append("file_a", fileA);
+    formData.append("file_b", fileB);
+    return request("/image/compare", {
+      method: "POST",
+      body: formData,
+    });
+  },
+
+  async getCompareSample(preset: "identical" | "modified" | "different"): Promise<ImageComparisonMetrics> {
+    return request(`/image/compare/samples/${preset}`);
   },
 
   async vaultImageEvidence(formData: FormData): Promise<EvidenceArtifact> {

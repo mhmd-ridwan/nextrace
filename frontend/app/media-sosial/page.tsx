@@ -203,7 +203,7 @@ function MediaSosialContent() {
       const target = baseline?.official_username || "jokowi";
       const res = await api.autoScanGlobal({
         target_url: target,
-        investigation_id: "inv-jokowi-001",
+        investigation_id: "inv-general-001",
         max_candidates: 6,
       });
       setReportSuccess(
@@ -283,7 +283,7 @@ function MediaSosialContent() {
     setPushingEvidence(true);
     try {
       const formData = new FormData();
-      formData.append("investigation_id", selectedFinding.investigation_id || "inv-jokowi-001");
+      formData.append("investigation_id", selectedFinding.investigation_id || "inv-general-001");
       formData.append("evidence_type", "document");
       formData.append("source_url", selectedFinding.candidate?.profile_url || "https://instagram.com");
       formData.append("collection_method", "osint_impersonator_scanner");

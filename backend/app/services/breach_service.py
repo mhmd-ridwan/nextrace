@@ -24,6 +24,8 @@ from app.schemas.leak import (
 from app.schemas.leak import (
     IdentifierType as SchemaIdentifierType,
 )
+from app.services.email_intel_service import EmailIntelService
+from app.services.phone_intel_service import PhoneIntelService
 from app.services.risk_engine import RiskEngine
 
 # Indonesian Telecom Operator Prefixes
@@ -152,6 +154,8 @@ class BreachService:
 
     def __init__(self):
         self.risk_engine = RiskEngine()
+        self.email_intel = EmailIntelService()
+        self.phone_intel = PhoneIntelService()
 
     async def check_identifier(
         self,
@@ -435,6 +439,18 @@ class BreachService:
                     matched.append(inc)
                     matched_ids.add(inc.id)
 
+            hlr = self.phone_intel.resolve_hlr(national)
+            virtual_info = self.phone_intel.detect_virtual_voip(identifier)
+            reputation = self.phone_intel.evaluate_reputation(
+                number=identifier,
+                has_breaches=len(matched) > 0,
+                is_virtual=virtual_info.is_virtual_voip,
+            )
+            intel.hlr_detail = hlr
+            intel.crowdsourced_reputation = reputation
+            intel.virtual_number_analysis = virtual_info
+            if reputation.is_spam_suspect:
+                intel.fraud_risk_score = max(intel.fraud_risk_score or 0, reputation.spam_score)
             return matched, intel
 
         # ── Case B: Email Address Search ──
@@ -514,6 +530,16 @@ class BreachService:
                     matched.append(inc)
                     matched_ids.add(inc.id)
 
+            dns_sec = await self.email_intel.audit_dns_security(domain)
+            gravatar = await self.email_intel.fetch_gravatar_profile(id_clean)
+            structure = self.email_intel.analyze_structure(id_clean, is_disp)
+            intel.dns_security = dns_sec
+            intel.gravatar_profile = gravatar
+            intel.email_analysis = structure
+            if dns_sec.is_spoofable:
+                intel.threat_vectors.append(
+                    "Kerentanan Email Spoofing: Domain tidak menerapkan proteksi DMARC ketat sehingga rentan pemalsuan pengirim."
+                )
             return matched, intel
 
         # ── Case C: ID Hash / National ID Search ──

@@ -48,12 +48,12 @@ class EvidenceService:
         file_hash = None
 
         # Ensure investigation exists to preserve referential integrity
-        inv_id = data.investigation_id or "inv-jokowi-001"
+        inv_id = data.investigation_id or "inv-general-001"
         inv_res = await db.execute(select(Investigation).where(Investigation.id == inv_id))
         if not inv_res.scalar_one_or_none():
             inv = Investigation(
                 id=inv_id,
-                title=f"Investigasi Forensik Kasus ({inv_id})",
+                title="Investigasi Forensik Umum (General Vault)" if inv_id == "inv-general-001" else f"Investigasi Forensik Kasus ({inv_id})",
                 status=InvestigationStatus.ACTIVE,
                 priority=Priority.HIGH,
                 organization="NEXTRACE Threat Intelligence Unit",

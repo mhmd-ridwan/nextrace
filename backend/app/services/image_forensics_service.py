@@ -27,6 +27,7 @@ from app.schemas.image import (
     GlobalImageScanResponse,
     GPSLocation,
     ImageChronology,
+    ImageComparisonMetrics,
     ImageDimensions,
     ImageForensicsResponse,
     ImageHashes,
@@ -370,7 +371,7 @@ class ImageForensicsService:
         image_bytes: bytes,
         file_name: str = "uploaded_image.jpg",
         db: AsyncSession | None = None,
-        investigation_id: str = "inv-jokowi-001",
+        investigation_id: str | None = None,
         threshold: float = 85.0,
     ) -> GlobalImageScanResponse:
         """
@@ -679,3 +680,56 @@ class ImageForensicsService:
             matched_entity_name=matched_entity_name,
             matched_profiles=matched_profiles,
         )
+
+    def compare_two_images(
+        self,
+        bytes_a: bytes,
+        name_a: str,
+        bytes_b: bytes,
+        name_b: str,
+    ) -> ImageComparisonMetrics:
+        """Execute deep spectral and perceptual hash comparison between two images."""
+        forensics_a = self.analyze_bytes(bytes_a, file_name=name_a)
+        forensics_b = self.analyze_bytes(bytes_b, file_name=name_b)
+
+        hash_a = imagehash.hex_to_hash(forensics_a.hashes.phash)
+        hash_b = imagehash.hex_to_hash(forensics_b.hashes.phash)
+        phash_dist = int(hash_a - hash_b)
+
+        dhash_a = imagehash.hex_to_hash(forensics_a.hashes.dhash)
+        dhash_b = imagehash.hex_to_hash(forensics_b.hashes.dhash)
+        dhash_dist = int(dhash_a - dhash_b)
+
+        sim_score = max(0.0, min(100.0, round(100.0 * (1.0 - phash_dist / 64.0), 2)))
+
+        if phash_dist == 0:
+            verdict = "Identik Kriptografis & Spektral (100% Match)"
+            classification = "EXACT_MATCH"
+        elif phash_dist <= 5:
+            verdict = "Kemiripan Sangat Tinggi (Indikasi Kuat Kloning / Kompresi)"
+            classification = "CLONED_IMAGE"
+        elif phash_dist <= 12:
+            verdict = "Kemiripan Sedang (Modifikasi / Pemotongan / Filter Spektral)"
+            classification = "MODIFIED_VARIANT"
+        else:
+            verdict = "Gambar Berbeda (Tidak Ditemukan Korelasi Spektral)"
+            classification = "DIFFERENT"
+
+        return ImageComparisonMetrics(
+            file_a_name=forensics_a.file_name,
+            file_b_name=forensics_b.file_name,
+            file_a_size_formatted=forensics_a.file_size_formatted,
+            file_b_size_formatted=forensics_b.file_size_formatted,
+            file_a_dimensions=forensics_a.dimensions,
+            file_b_dimensions=forensics_b.dimensions,
+            file_a_hashes=forensics_a.hashes,
+            file_b_hashes=forensics_b.hashes,
+            phash_hamming_distance=phash_dist,
+            dhash_hamming_distance=dhash_dist,
+            similarity_score=sim_score,
+            verdict=verdict,
+            match_classification=classification,
+            file_a_preview=forensics_a.preview_data_url,
+            file_b_preview=forensics_b.preview_data_url,
+        )
+

@@ -49,6 +49,77 @@ export interface RiskAssessment {
   explanation: string;
 }
 
+export interface DnsSecurityInfo {
+  domain: string;
+  has_mx: boolean;
+  mx_records: string[];
+  has_spf: boolean;
+  spf_record?: string | null;
+  spf_policy: string;
+  has_dmarc: boolean;
+  dmarc_record?: string | null;
+  dmarc_policy: string;
+  is_spoofable: boolean;
+  security_verdict: string;
+}
+
+export interface GravatarProfile {
+  has_gravatar: boolean;
+  email_hash?: string | null;
+  avatar_url?: string | null;
+  display_name?: string | null;
+  profile_url?: string | null;
+  location?: string | null;
+  job_title?: string | null;
+  company?: string | null;
+}
+
+export interface EmailAnalysis {
+  normalized_email: string;
+  local_part: string;
+  domain: string;
+  has_plus_addressing: boolean;
+  base_local_part?: string | null;
+  plus_tag?: string | null;
+  has_dot_trick: boolean;
+  canonical_email?: string | null;
+  domain_category: string;
+}
+
+export interface PopularTag {
+  tag: string;
+  category: string;
+  count: number;
+}
+
+export interface CrowdsourcedReputation {
+  spam_score: number;
+  spam_reports_count: number;
+  is_spam_suspect: boolean;
+  primary_tag?: string | null;
+  tag_category?: string | null;
+  popular_tags: PopularTag[];
+  is_verified_business: boolean;
+  business_name?: string | null;
+}
+
+export interface HlrDetail {
+  mcc: string;
+  mnc: string;
+  mcc_mnc_label: string;
+  origin_region: string;
+  origin_city: string;
+  network_bands: string;
+  routing_prefix: string;
+}
+
+export interface VirtualNumberAnalysis {
+  is_virtual_voip: boolean;
+  line_nature: string;
+  provider_indication?: string | null;
+  botnet_correlation: string;
+}
+
 export interface IntelligenceMetadata {
   carrier?: string | null;
   operator_group?: string | null;
@@ -62,6 +133,12 @@ export interface IntelligenceMetadata {
   disposable_service?: string | null;
   fraud_risk_score?: number | null;
   telecom_category?: string | null;
+  dns_security?: DnsSecurityInfo | null;
+  gravatar_profile?: GravatarProfile | null;
+  email_analysis?: EmailAnalysis | null;
+  hlr_detail?: HlrDetail | null;
+  crowdsourced_reputation?: CrowdsourcedReputation | null;
+  virtual_number_analysis?: VirtualNumberAnalysis | null;
 }
 
 export interface LeakCheckResponse {
@@ -584,6 +661,24 @@ export interface GlobalImageScanResponse {
   high_risk_matches: number;
   matched_entity_name: string;
   matched_profiles: MatchedProfile[];
+}
+
+export interface ImageComparisonMetrics {
+  file_a_name: string;
+  file_b_name: string;
+  file_a_size_formatted: string;
+  file_b_size_formatted: string;
+  file_a_dimensions: ImageDimensions;
+  file_b_dimensions: ImageDimensions;
+  file_a_hashes: ImageHashes;
+  file_b_hashes: ImageHashes;
+  phash_hamming_distance: number;
+  dhash_hamming_distance: number;
+  similarity_score: number;
+  verdict: string;
+  match_classification: string;
+  file_a_preview?: string | null;
+  file_b_preview?: string | null;
 }
 
 // Module H: Attack Surface Management & Nuclei Scanner

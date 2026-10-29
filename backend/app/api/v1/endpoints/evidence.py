@@ -33,7 +33,7 @@ async def list_evidence(
 
 @router.post("", response_model=EvidenceResponse, summary="Ingest evidence artifact")
 async def create_evidence(
-    investigation_id: str = Form("inv-jokowi-001"),
+    investigation_id: str | None = Form(None),
     evidence_type: str = Form("document"),
     source_url: str | None = Form(None),
     collection_method: str = Form("manual_upload"),

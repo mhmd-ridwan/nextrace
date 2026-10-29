@@ -319,7 +319,7 @@ function BuzzerContent() {
     setPushingEvidence(true);
     try {
       const formData = new FormData();
-      formData.append("investigation_id", activeScan.investigation_id || "inv-jokowi-001");
+      formData.append("investigation_id", activeScan.investigation_id || "inv-general-001");
       formData.append("evidence_type", "document");
       formData.append("source_url", selectedComment.account_signals?.post_url || activeScan.target_url);
       formData.append("collection_method", "osint_buzzer_hunter");
@@ -379,7 +379,7 @@ function BuzzerContent() {
     setExportingPdf(true);
     try {
       const res = await api.generateReport({
-        investigation_id: activeScan.investigation_id || "inv-jokowi-001",
+        investigation_id: activeScan.investigation_id || "inv-general-001",
         report_type: "buzzer_threat_dossier",
         format: "pdf",
         target_platform: activeScan.target_platform,

@@ -36,8 +36,8 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import {
-  Finding,
   GlobalImageScanResponse,
+  ImageComparisonMetrics,
   ImageForensicsResponse,
   Investigation,
   MatchedProfile,
@@ -155,43 +155,35 @@ function SmartProfileAvatar({
   );
 }
 
-interface VisualSample {
-  id: string;
+interface ComparePreset {
+  id: "identical" | "modified" | "different";
   label: string;
-  officialUser: string;
-  officialPlatform: string;
-  officialAvatar: string;
-  candidateUser: string;
-  candidatePlatform: string;
-  candidateAvatar: string;
-  expectedScore: number;
-  expectedDist: number;
+  badge: string;
+  badgeClass: string;
+  description: string;
 }
 
-const PRESET_SAMPLES: VisualSample[] = [
+const COMPARE_PRESETS: ComparePreset[] = [
   {
-    id: "jokowi-bantuan",
-    label: "Ir. H. Joko Widodo (@jokowi) vs Akun Klon @jokowi.official_bantuan",
-    officialUser: "jokowi",
-    officialPlatform: "TikTok",
-    officialAvatar: "/avatars/avatar_jokowi.png",
-    candidateUser: "jokowi.official_bantuan",
-    candidatePlatform: "TikTok",
-    candidateAvatar: "/avatars/avatar_jokowi_clone.png",
-    expectedScore: 98.4,
-    expectedDist: 1,
+    id: "identical",
+    label: "Identik 100%",
+    badge: "100% MATCH",
+    badgeClass: "bg-[#22c55e]/15 text-[#22c55e] border-[#22c55e]/30",
+    description: "Dua citra profil identik sempurna (Hamming distance 0 bit)",
   },
   {
-    id: "jokowi-instagram",
-    label: "Joko Widodo (@jokowi) vs Akun Peniru @jokowi_presiden_ri",
-    officialUser: "jokowi",
-    officialPlatform: "Instagram",
-    officialAvatar: "/avatars/avatar_jokowi.png",
-    candidateUser: "jokowi_presiden_ri",
-    candidatePlatform: "Instagram",
-    candidateAvatar: "/avatars/avatar_jokowi_clone.png",
-    expectedScore: 94.5,
-    expectedDist: 3,
+    id: "modified",
+    label: "Dimodifikasi (~93%)",
+    badge: "~93% VARIANT",
+    badgeClass: "bg-[#eab308]/15 text-[#eab308] border-[#eab308]/30",
+    description: "Citra asli vs varian kloning terkompresi / filter (Hamming: 3-4 bit)",
+  },
+  {
+    id: "different",
+    label: "Subjek Berbeda (<60%)",
+    badge: "<60% DISTINCT",
+    badgeClass: "bg-[#ef4444]/15 text-[#ef4444] border-[#ef4444]/30",
+    description: "Dua citra profil yang berbeda sama sekali (Hamming > 15 bit)",
   },
 ];
 
@@ -199,7 +191,7 @@ function AnalisisGambarContent() {
   const searchParams = useSearchParams();
   const sampleParam = searchParams.get("sample");
   const tabParam = searchParams.get("tab");
-  const initialCaseId = searchParams.get("investigation_id") || "inv-jokowi-001";
+  const initialCaseId = searchParams.get("investigation_id") || "";
 
   // 3 Separated Tabs: "global" | "exif" | "compare"
   const [activeTab, setActiveTab] = useState<"global" | "exif" | "compare">(
@@ -236,18 +228,26 @@ function AnalisisGambarContent() {
 
   // Tab 2 Preview Card State (Sebelah Kiri)
   const [exifPreviewUrl, setExifPreviewUrl] = useState<string | null>(null);
-  const [exifFileName, setExifFileName] = useState<string>("IMG_4920_IPHONE_MONAS_GPS.JPG");
-  const [exifFileSize, setExifFileSize] = useState<string>("75.4 KB");
-  const [exifDimensions, setExifDimensions] = useState<string>("800 × 600 px");
+  const [exifFileName, setExifFileName] = useState<string>("Belum ada berkas");
+  const [exifFileSize, setExifFileSize] = useState<string>("-");
+  const [exifDimensions, setExifDimensions] = useState<string>("-");
 
-  // ── Tab 3: Manual 1-on-1 Avatar Comparator State ──
-  const [selectedPreset, setSelectedPreset] = useState<VisualSample>(PRESET_SAMPLES[0]);
-  const [officialQuery, setOfficialQuery] = useState(PRESET_SAMPLES[0].officialUser);
-  const [officialPlatform, setOfficialPlatform] = useState(PRESET_SAMPLES[0].officialPlatform);
-  const [candidateQuery, setCandidateQuery] = useState(PRESET_SAMPLES[0].candidateUser);
-  const [candidatePlatform, setCandidatePlatform] = useState(PRESET_SAMPLES[0].candidatePlatform);
+  // ── Tab 3: Direct Dual-Image Spectral Comparator State ──
+  const [compareFileA, setCompareFileA] = useState<File | null>(null);
+  const [comparePreviewA, setComparePreviewA] = useState<string | null>(null);
+  const [compareFileAName, setCompareFileAName] = useState<string>("");
+
+  const [compareFileB, setCompareFileB] = useState<File | null>(null);
+  const [comparePreviewB, setComparePreviewB] = useState<string | null>(null);
+  const [compareFileBName, setCompareFileBName] = useState<string>("");
+
+  const [isDraggingA, setIsDraggingA] = useState(false);
+  const [isDraggingB, setIsDraggingB] = useState(false);
+  const fileInputARef = useRef<HTMLInputElement | null>(null);
+  const fileInputBRef = useRef<HTMLInputElement | null>(null);
+
   const [compareLoading, setCompareLoading] = useState(false);
-  const [compareResult, setCompareResult] = useState<Finding | null>(null);
+  const [compareMetrics, setCompareMetrics] = useState<ImageComparisonMetrics | null>(null);
   const [compareError, setCompareError] = useState<string | null>(null);
 
   // Vaulting State & Professional Modal
@@ -408,12 +408,17 @@ function AnalisisGambarContent() {
     }
   };
 
-  // Auto-load sample for EXIF if tab switched or requested
-  useEffect(() => {
-    if (activeTab === "exif" && !exifData && !exifLoading) {
-      handleSelectExifSample("iphone_gps");
+  const handleResetExif = () => {
+    setExifData(null);
+    setExifPreviewUrl(null);
+    setExifFileName("Belum ada berkas");
+    setExifFileSize("-");
+    setExifDimensions("-");
+    setExifError(null);
+    if (exifFileInputRef.current) {
+      exifFileInputRef.current.value = "";
     }
-  }, [activeTab]);
+  };
 
   const handleCopyHash = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -461,11 +466,11 @@ function AnalisisGambarContent() {
         confirmText: "Lihat di Loker Bukti",
         cancelText: "Tutup",
         onConfirm: () => {
-          window.location.href = `/evidence?investigation_id=${selectedCaseId}`;
+          window.location.href = selectedCaseId ? `/evidence?investigation_id=${selectedCaseId}` : "/evidence";
         },
         details: [
           { label: "Nomor Registrasi Bukti", value: evidence.evidence_id },
-          { label: "ID Kasus Terkait", value: selectedCaseId },
+          { label: "ID Kasus Terkait", value: selectedCaseId || "Umum (Standalone)" },
           { label: "Hash Kriptografis (SHA-256)", value: evidence.file_hash_sha256 || "TERVERIFIKASI" },
           { label: "Tingkat Kemiripan Visual", value: `${match.visual_similarity_score}% (Dist: ${match.hash_distance} bit)` },
           { label: "Platform Target", value: match.platform },
@@ -518,7 +523,7 @@ function AnalisisGambarContent() {
         confirmText: "Buka Loker Bukti",
         cancelText: "Tutup",
         onConfirm: () => {
-          window.location.href = `/evidence?investigation_id=${selectedCaseId}`;
+          window.location.href = selectedCaseId ? `/evidence?investigation_id=${selectedCaseId}` : "/evidence";
         },
         details: [
           { label: "ID Bukti Vault", value: res.evidence_id },
@@ -542,11 +547,27 @@ function AnalisisGambarContent() {
     }
   };
 
-  // Tab 3 Comparison Handler
+  // ── TAB 3 HANDLERS: Direct Dual-Image Spectral Comparator ──
+  const handleSelectCompareFileA = (file: File) => {
+    setCompareFileA(file);
+    setCompareFileAName(file.name);
+    setComparePreviewA(URL.createObjectURL(file));
+    setCompareMetrics(null);
+    setCompareError(null);
+  };
+
+  const handleSelectCompareFileB = (file: File) => {
+    setCompareFileB(file);
+    setCompareFileBName(file.name);
+    setComparePreviewB(URL.createObjectURL(file));
+    setCompareMetrics(null);
+    setCompareError(null);
+  };
+
   const handleRunComparison = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!officialQuery.trim() || !candidateQuery.trim()) {
-      setCompareError("Masukkan target akun resmi dan kandidat suspek untuk dibandingkan.");
+    if (!compareFileA || !compareFileB) {
+      setCompareError("Harap unggah kedua berkas citra (Foto Acuan A dan Foto Suspek B) terlebih dahulu.");
       return;
     }
 
@@ -554,19 +575,111 @@ function AnalisisGambarContent() {
     setCompareError(null);
 
     try {
-      const res = await api.quickCompare({
-        official_query: officialQuery.trim(),
-        official_platform: officialPlatform,
-        candidate_query: candidateQuery.trim(),
-        candidate_platform: candidatePlatform,
-        investigation_id: selectedCaseId,
-        save_to_queue: true,
-      });
-      setCompareResult(res);
+      const res = await api.compareImages(compareFileA, compareFileB);
+      setCompareMetrics(res);
+      if (res.file_a_preview) setComparePreviewA(res.file_a_preview);
+      if (res.file_b_preview) setComparePreviewB(res.file_b_preview);
     } catch (err: any) {
-      setCompareError(err.message || "Gagal menjalankan analisis komparasi spektral citra.");
+      setCompareError(err.message || "Gagal melakukan komparasi spektral citra.");
     } finally {
       setCompareLoading(false);
+    }
+  };
+
+  const handleSelectComparePreset = async (preset: "identical" | "modified" | "different") => {
+    setCompareLoading(true);
+    setCompareError(null);
+
+    try {
+      const res = await api.getCompareSample(preset);
+      setCompareMetrics(res);
+      setComparePreviewA(res.file_a_preview || null);
+      setCompareFileAName(res.file_a_name);
+      setComparePreviewB(res.file_b_preview || null);
+      setCompareFileBName(res.file_b_name);
+      setCompareFileA(null);
+      setCompareFileB(null);
+    } catch (err: any) {
+      setCompareError(err.message || "Gagal memuat sampel komparasi spektral.");
+    } finally {
+      setCompareLoading(false);
+    }
+  };
+
+  const handleResetComparison = () => {
+    setCompareFileA(null);
+    setComparePreviewA(null);
+    setCompareFileAName("");
+    setCompareFileB(null);
+    setComparePreviewB(null);
+    setCompareFileBName("");
+    setCompareMetrics(null);
+    setCompareError(null);
+    if (fileInputARef.current) fileInputARef.current.value = "";
+    if (fileInputBRef.current) fileInputBRef.current.value = "";
+  };
+
+  const handleVaultComparisonEvidence = async () => {
+    if (!compareMetrics) return;
+    setVaultLoadingId("compare_spectral");
+
+    try {
+      const formData = new FormData();
+      formData.append("investigation_id", selectedCaseId);
+      formData.append("evidence_type", "image");
+      formData.append("source_url", `local://spectral-compare/${compareMetrics.file_a_name}-vs-${compareMetrics.file_b_name}`);
+      formData.append("collection_method", "spectral_phash_comparator");
+
+      const payload = {
+        comparison_type: "dual_image_spectral",
+        file_a_name: compareMetrics.file_a_name,
+        file_b_name: compareMetrics.file_b_name,
+        file_a_dimensions: compareMetrics.file_a_dimensions,
+        file_b_dimensions: compareMetrics.file_b_dimensions,
+        file_a_hashes: compareMetrics.file_a_hashes,
+        file_b_hashes: compareMetrics.file_b_hashes,
+        similarity_score: compareMetrics.similarity_score,
+        phash_hamming_distance: compareMetrics.phash_hamming_distance,
+        dhash_hamming_distance: compareMetrics.dhash_hamming_distance,
+        verdict: compareMetrics.verdict,
+        match_classification: compareMetrics.match_classification,
+        audited_at: new Date().toISOString(),
+      };
+      formData.append("metadata", JSON.stringify(payload));
+
+      const evidence = await api.createEvidence(formData);
+
+      setModalConfig({
+        isOpen: true,
+        title: "Hasil Komparasi Spektral Tersegel",
+        description: `Bukti komparasi spektral antara ${compareMetrics.file_a_name} dan ${compareMetrics.file_b_name} berhasil dikunci ke Evidence Vault.`,
+        variant: "success",
+        confirmText: "Lihat di Loker Bukti",
+        cancelText: "Tutup",
+        onConfirm: () => {
+          window.location.href = selectedCaseId ? `/evidence?investigation_id=${selectedCaseId}` : "/evidence";
+        },
+        details: [
+          { label: "Nomor Registrasi Bukti", value: evidence.evidence_id },
+          { label: "Klasifikasi Spektral", value: compareMetrics.match_classification },
+          { label: "Skor Kemiripan Visual", value: `${compareMetrics.similarity_score}%` },
+          { label: "Hamming Bit Distance", value: `pHash: ${compareMetrics.phash_hamming_distance} bit, dHash: ${compareMetrics.dhash_hamming_distance} bit` },
+          { label: "SHA-256 Gambar A", value: compareMetrics.file_a_hashes.sha256 },
+          { label: "SHA-256 Gambar B", value: compareMetrics.file_b_hashes.sha256 },
+          { label: "Status Integritas", value: "SEALED / UNTAMPERED" },
+        ],
+      });
+    } catch (err: any) {
+      setModalConfig({
+        isOpen: true,
+        title: "Gagal Mengunci Bukti Komparasi",
+        description: "Terjadi kesalahan saat menyegel bukti ke server forensik.",
+        variant: "danger",
+        confirmText: "Tutup",
+        details: err.message || String(err),
+      });
+    } finally {
+      setVaultLoadingId(null);
     }
   };
 
@@ -607,29 +720,6 @@ function AnalisisGambarContent() {
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
-          {/* Dynamic Case Selector */}
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--s1)] border border-[var(--line)] rounded-[6px] w-full sm:w-auto">
-            <Briefcase className="w-3.5 h-3.5 text-[var(--mute)] shrink-0" />
-            <span className="text-[12px] text-[var(--mute)] font-medium">Kasus:</span>
-            <select
-              value={selectedCaseId}
-              onChange={(e) => setSelectedCaseId(e.target.value)}
-              className="bg-transparent text-[12.5px] font-mono font-semibold text-[var(--ink)] focus:outline-none cursor-pointer flex-1 sm:flex-initial"
-            >
-              {investigations.length > 0 ? (
-                investigations.map((inv) => (
-                  <option key={inv.id} value={inv.id} className="bg-[var(--s1)] text-[var(--ink)]">
-                    {inv.title || inv.id} ({inv.id})
-                  </option>
-                ))
-              ) : (
-                <option value="inv-jokowi-001" className="bg-[var(--s1)] text-[var(--ink)]">
-                  Operasi Siber Jokowi-RI (inv-jokowi-001)
-                </option>
-              )}
-            </select>
-          </div>
-
           {/* ── 3 DEDICATED TOP TABS ── */}
           <div className="flex items-center gap-1.5 p-1 bg-[var(--s1)] border border-[var(--line)] rounded-[8px] overflow-x-auto max-w-full pb-1 shrink-0">
             <button
@@ -1232,10 +1322,26 @@ function AnalisisGambarContent() {
                     <Camera className="w-3.5 h-3.5 text-[var(--acc)]" />
                     <span>Foto Forensik Aktif</span>
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-[var(--lo)]/15 text-[var(--lo)] font-mono text-[10px] font-semibold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--lo)] animate-pulse" />
-                    <span>EXIF TERSEDIA</span>
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {exifData && (
+                      <button
+                        type="button"
+                        onClick={handleResetExif}
+                        className="px-1.5 py-0.5 rounded text-[10px] font-mono text-[var(--mute)] hover:text-[var(--hi)] hover:bg-[var(--hi)]/10 border border-[var(--line)] transition-colors cursor-pointer"
+                        title="Kosongkan berkas aktif"
+                      >
+                        Reset
+                      </button>
+                    )}
+                    <span className={`px-2 py-0.5 rounded font-mono text-[10px] font-semibold flex items-center gap-1 ${
+                      exifData
+                        ? "bg-[var(--lo)]/15 text-[var(--lo)]"
+                        : "bg-[var(--s2)] text-[var(--mute)] border border-[var(--line)]"
+                    }`}>
+                      {exifData && <span className="w-1.5 h-1.5 rounded-full bg-[var(--lo)] animate-pulse" />}
+                      <span>{exifData ? "EXIF TERANALISIS" : "MENUNGGU BERKAS"}</span>
+                    </span>
+                  </div>
                 </div>
 
                 {/* Thumbnail Display */}
@@ -1360,7 +1466,11 @@ function AnalisisGambarContent() {
                     {exifLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
                   </div>
                   <div className="text-[13.5px] font-semibold text-[var(--ink)]">
-                    {exifLoading ? "Mengekstrak Metadata EXIF & Kriptografi..." : "Tarik & Lepas Foto di Sini, atau Klik untuk Mengganti Berkas"}
+                    {exifLoading
+                      ? "Mengekstrak Metadata EXIF & Kriptografi..."
+                      : exifData
+                      ? "Tarik & Lepas Foto di Sini, atau Klik untuk Mengganti Berkas"
+                      : "Tarik & Lepas Foto di Sini, atau Klik untuk Memilih Berkas"}
                   </div>
                   <p className="text-[12px] text-[var(--mute)] max-w-md m-0">
                     Mendukung berkas JPEG/JPG murni kamera, TIFF, PNG ber-metadata, dan RAW.
@@ -1374,6 +1484,21 @@ function AnalisisGambarContent() {
             <div className="p-3 bg-[var(--hi)]/10 border border-[var(--hi)]/30 rounded-[8px] text-[13px] text-[var(--hi)] flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{exifError}</span>
+            </div>
+          )}
+
+          {/* Empty state when no photo uploaded */}
+          {!exifData && !exifLoading && (
+            <div className="p-8 rounded-[10px] bg-[var(--s1)] border border-[var(--line)] border-dashed text-center flex flex-col items-center justify-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-[var(--s2)] border border-[var(--line)] flex items-center justify-center text-[var(--mute)]">
+                <Camera className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-[14px] font-semibold text-[var(--ink)] m-0">Menunggu Berkas Citra untuk Forensik EXIF</h3>
+                <p className="text-[12.5px] text-[var(--mute)] max-w-lg m-0">
+                  Unggah berkas foto kamera melalui area di atas, atau klik salah satu sampel uji coba cepat (<span className="text-[#ef4444] font-mono font-medium">Photoshop</span>, <span className="text-[#38bdf8] font-mono font-medium">iPhone GPS</span>, <span className="text-[#22c55e] font-mono font-medium">Canon DSLR</span>) di sudut kanan atas untuk mengekstraksi metadata hardware.
+                </p>
+              </div>
             </div>
           )}
 
@@ -1554,58 +1679,219 @@ function AnalisisGambarContent() {
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* ── TAB 3: KOMPARASI AVATAR 1-ON-1 (MANUAL SPEKTRAL) ── */}
+      {/* ── TAB 3: KOMPARASI SPEKTRAL CITRA 1-ON-1 (DIRECT DUAL-IMAGE) ── */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
       {activeTab === "compare" && (
         <div className="space-y-6 animate-in fade-in duration-200">
           <div className="bg-[var(--s1)] border border-[var(--line)] rounded-[10px] p-5 space-y-4">
-            <div>
-              <h2 className="text-[15px] font-bold text-[var(--ink)] m-0">
-                Komparasi Spektral pHash Dua Akun Mandiri (1-on-1)
-              </h2>
-              <p className="text-[12.5px] text-[var(--mute)] m-0 mt-0.5">
-                Bandingkan foto profil akun resmi terhadap satu kandidat akun suspek untuk verifikasi manual.
-              </p>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div>
+                <h2 className="text-[15px] font-bold text-[var(--ink)] m-0 flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-[var(--acc)]" />
+                  <span>Komparasi Citra Spektral 1-on-1 (Dual-Image)</span>
+                </h2>
+                <p className="text-[12.5px] text-[var(--mute)] m-0 mt-0.5">
+                  Bandingkan dua citra langsung via ekstraksi pHash, dHash, dan Hamming bit distance untuk mendeteksi peniruan, modifikasi visual, atau perbedaan subjek.
+                </p>
+              </div>
+
+              {/* Quick Preset Buttons */}
+              <div className="flex items-center gap-1.5 flex-wrap shrink-0">
+                {COMPARE_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => handleSelectComparePreset(preset.id)}
+                    disabled={compareLoading}
+                    className="px-2.5 py-1 rounded bg-[var(--s2)] hover:bg-[var(--s1)] text-[var(--ink)] border border-[var(--line)] text-[11px] font-mono flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                    title={preset.description}
+                  >
+                    <span className={`px-1.5 py-0.5 rounded text-[9.5px] font-bold border ${preset.badgeClass}`}>
+                      {preset.badge}
+                    </span>
+                    <span>{preset.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <form onSubmit={handleRunComparison} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="p-4 bg-[var(--s2)] border border-[var(--line)] rounded-[8px] space-y-2">
-                <span className="text-[11px] font-mono text-[var(--lo)] uppercase font-semibold">
-                  Akun Resmi (Anchor Baseline)
-                </span>
+            {/* Side-by-Side Dual Upload Zones */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Card Gambar A */}
+              <div className="bg-[var(--s2)]/40 border border-[var(--line)] rounded-[8px] p-4 flex flex-col justify-between space-y-3">
+                <div className="flex justify-between items-center pb-2 border-b border-[var(--line)]">
+                  <span className="text-[11px] font-mono font-semibold text-[var(--lo)] uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[var(--lo)]" />
+                    <span>Gambar A &bull; Foto Acuan / Asli</span>
+                  </span>
+                  {comparePreviewA && (
+                    <button
+                      type="button"
+                      onClick={() => fileInputARef.current?.click()}
+                      className="text-[11px] font-mono text-[var(--mute)] hover:text-[var(--ink)] transition-colors cursor-pointer"
+                    >
+                      Ganti Berkas
+                    </button>
+                  )}
+                </div>
+
+                {comparePreviewA ? (
+                  <div className="space-y-2">
+                    <div className="relative w-full h-44 rounded-[6px] bg-[var(--s1)] border border-[var(--line)] overflow-hidden flex items-center justify-center">
+                      <img src={comparePreviewA} alt="Gambar A" className="w-full h-full object-contain p-1" />
+                    </div>
+                    <div className="p-2 rounded bg-[var(--s1)] border border-[var(--line)] flex justify-between items-center text-[11px] font-mono">
+                      <span className="text-[var(--mute)]">Berkas:</span>
+                      <span className="text-[var(--ink)] font-semibold truncate ml-2 max-w-[200px]" title={compareFileAName || compareMetrics?.file_a_name}>
+                        {compareFileAName || compareMetrics?.file_a_name || "Gambar_A.jpg"}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    onDragOver={(e) => { e.preventDefault(); setIsDraggingA(true); }}
+                    onDragLeave={() => setIsDraggingA(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setIsDraggingA(false);
+                      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                        handleSelectCompareFileA(e.dataTransfer.files[0]);
+                      }
+                    }}
+                    onClick={() => fileInputARef.current?.click()}
+                    className={`border-2 border-dashed rounded-[6px] p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[176px] ${
+                      isDraggingA ? "border-[var(--lo)] bg-[var(--lo)]/5" : "border-[var(--line)] hover:border-[var(--mute)] bg-[var(--s1)]/40 hover:bg-[var(--s1)]"
+                    }`}
+                  >
+                    <div className="w-9 h-9 rounded-full bg-[var(--s2)] border border-[var(--line)] flex items-center justify-center text-[var(--lo)] mb-2">
+                      <Upload className="w-4 h-4" />
+                    </div>
+                    <span className="text-[12.5px] font-semibold text-[var(--ink)]">
+                      Unggah Foto Acuan A
+                    </span>
+                    <p className="text-[11.5px] text-[var(--mute)] m-0 mt-0.5">
+                      Tarik &amp; lepas atau klik untuk memilih berkas foto resmi
+                    </p>
+                  </div>
+                )}
                 <input
-                  type="text"
-                  value={officialQuery}
-                  onChange={(e) => setOfficialQuery(e.target.value)}
-                  placeholder="Username resmi (misal: jokowi)"
-                  className="w-full bg-[var(--s1)] border border-[var(--line)] rounded px-3 py-1.5 text-[13px] text-[var(--ink)] font-mono focus:outline-none focus:border-[var(--acc)]"
+                  ref={fileInputARef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleSelectCompareFileA(e.target.files[0]);
+                    }
+                  }}
+                  className="hidden"
                 />
               </div>
 
-              <div className="p-4 bg-[var(--s2)] border border-[var(--line)] rounded-[8px] space-y-2">
-                <span className="text-[11px] font-mono text-[var(--hi)] uppercase font-semibold">
-                  Akun Suspek (Kandidat Kloning)
-                </span>
+              {/* Card Gambar B */}
+              <div className="bg-[var(--s2)]/40 border border-[var(--line)] rounded-[8px] p-4 flex flex-col justify-between space-y-3">
+                <div className="flex justify-between items-center pb-2 border-b border-[var(--line)]">
+                  <span className="text-[11px] font-mono font-semibold text-[var(--hi)] uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[var(--hi)]" />
+                    <span>Gambar B &bull; Foto Pembanding / Suspek</span>
+                  </span>
+                  {comparePreviewB && (
+                    <button
+                      type="button"
+                      onClick={() => fileInputBRef.current?.click()}
+                      className="text-[11px] font-mono text-[var(--mute)] hover:text-[var(--ink)] transition-colors cursor-pointer"
+                    >
+                      Ganti Berkas
+                    </button>
+                  )}
+                </div>
+
+                {comparePreviewB ? (
+                  <div className="space-y-2">
+                    <div className="relative w-full h-44 rounded-[6px] bg-[var(--s1)] border border-[var(--line)] overflow-hidden flex items-center justify-center">
+                      <img src={comparePreviewB} alt="Gambar B" className="w-full h-full object-contain p-1" />
+                    </div>
+                    <div className="p-2 rounded bg-[var(--s1)] border border-[var(--line)] flex justify-between items-center text-[11px] font-mono">
+                      <span className="text-[var(--mute)]">Berkas:</span>
+                      <span className="text-[var(--ink)] font-semibold truncate ml-2 max-w-[200px]" title={compareFileBName || compareMetrics?.file_b_name}>
+                        {compareFileBName || compareMetrics?.file_b_name || "Gambar_B.jpg"}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    onDragOver={(e) => { e.preventDefault(); setIsDraggingB(true); }}
+                    onDragLeave={() => setIsDraggingB(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setIsDraggingB(false);
+                      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                        handleSelectCompareFileB(e.dataTransfer.files[0]);
+                      }
+                    }}
+                    onClick={() => fileInputBRef.current?.click()}
+                    className={`border-2 border-dashed rounded-[6px] p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[176px] ${
+                      isDraggingB ? "border-[var(--hi)] bg-[var(--hi)]/5" : "border-[var(--line)] hover:border-[var(--mute)] bg-[var(--s1)]/40 hover:bg-[var(--s1)]"
+                    }`}
+                  >
+                    <div className="w-9 h-9 rounded-full bg-[var(--s2)] border border-[var(--line)] flex items-center justify-center text-[var(--hi)] mb-2">
+                      <Upload className="w-4 h-4" />
+                    </div>
+                    <span className="text-[12.5px] font-semibold text-[var(--ink)]">
+                      Unggah Foto Pembanding B
+                    </span>
+                    <p className="text-[11.5px] text-[var(--mute)] m-0 mt-0.5">
+                      Tarik &amp; lepas atau klik untuk memilih berkas foto suspek
+                    </p>
+                  </div>
+                )}
                 <input
-                  type="text"
-                  value={candidateQuery}
-                  onChange={(e) => setCandidateQuery(e.target.value)}
-                  placeholder="Username suspek (misal: jokowi.official_bantuan)"
-                  className="w-full bg-[var(--s1)] border border-[var(--line)] rounded px-3 py-1.5 text-[13px] text-[var(--ink)] font-mono focus:outline-none focus:border-[var(--acc)]"
+                  ref={fileInputBRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleSelectCompareFileB(e.target.files[0]);
+                    }
+                  }}
+                  className="hidden"
                 />
               </div>
+            </div>
 
-              <div className="sm:col-span-2 flex justify-end">
+            {/* Action Row */}
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
+              <div className="text-[12px] font-mono text-[var(--mute)]">
+                {compareFileA && compareFileB ? (
+                  <span className="text-[var(--lo)] flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Kedua berkas siap untuk dikomparasi</span>
+                  </span>
+                ) : (
+                  <span>Unggah berkas Gambar A dan Gambar B, atau pilih sampel preset di atas</span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {(comparePreviewA || comparePreviewB || compareMetrics) && (
+                  <button
+                    type="button"
+                    onClick={handleResetComparison}
+                    className="px-3 py-2 rounded-[6px] bg-[var(--s2)] hover:bg-[var(--s1)] text-[var(--mute)] hover:text-[var(--ink)] border border-[var(--line)] text-[12px] font-mono transition-colors cursor-pointer"
+                  >
+                    Reset
+                  </button>
+                )}
                 <button
-                  type="submit"
-                  disabled={compareLoading}
-                  className="px-5 py-2 bg-[var(--acc)] hover:opacity-90 text-white rounded-[6px] font-semibold text-[13px] transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  type="button"
+                  onClick={() => handleRunComparison()}
+                  disabled={compareLoading || (!compareFileA && !compareMetrics)}
+                  className="px-4 py-2 bg-[var(--acc)] hover:opacity-90 text-white rounded-[6px] font-semibold text-[13px] transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  {compareLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                  {compareLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Layers className="w-4 h-4" />}
                   <span>Jalankan Komparasi Spektral</span>
                 </button>
               </div>
-            </form>
+            </div>
 
             {compareError && (
               <div className="p-3 bg-[var(--hi)]/10 border border-[var(--hi)]/30 rounded-[8px] text-[13px] text-[var(--hi)] flex items-center gap-2">
@@ -1613,21 +1899,291 @@ function AnalisisGambarContent() {
                 <span>{compareError}</span>
               </div>
             )}
+          </div>
 
-            {compareResult && (
-              <div className="p-5 bg-[var(--s2)] border border-[var(--line)] rounded-[8px] space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-[var(--ink)] text-[14px]">Hasil Komparasi Spektral</span>
-                  <span className="px-2.5 py-0.5 rounded bg-[var(--hi)] text-black font-mono font-bold text-[12px]">
-                    {compareResult.avatar_similarity_score}% Match
+          {/* Results Section */}
+          {compareMetrics && (
+            <div className="space-y-6">
+              {/* Executive Verdict Banner */}
+              <div className="p-5 bg-[var(--s1)] border border-[var(--line)] rounded-[10px] space-y-4">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b border-[var(--line)]">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`px-2.5 py-0.5 rounded text-[11px] font-mono font-bold uppercase tracking-wider border ${
+                        compareMetrics.match_classification === "EXACT_MATCH"
+                          ? "bg-[#22c55e]/15 text-[#22c55e] border-[#22c55e]/30"
+                          : compareMetrics.match_classification === "CLONED_IMAGE"
+                          ? "bg-[#38bdf8]/15 text-[#38bdf8] border-[#38bdf8]/30"
+                          : compareMetrics.match_classification === "MODIFIED_VARIANT"
+                          ? "bg-[#eab308]/15 text-[#eab308] border-[#eab308]/30"
+                          : "bg-[#ef4444]/15 text-[#ef4444] border-[#ef4444]/30"
+                      }`}>
+                        {compareMetrics.match_classification.replace("_", " ")}
+                      </span>
+                      <span className="text-[12px] font-mono text-[var(--mute)]">
+                        Metrik Spektral: pHash &amp; dHash (64-bit)
+                      </span>
+                    </div>
+                    <div className="text-[14px] font-semibold text-[var(--ink)]">
+                      {compareMetrics.verdict}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 shrink-0">
+                    <div className="text-right">
+                      <span className="text-[11px] font-mono text-[var(--mute)] uppercase block">Kemiripan Visual</span>
+                      <span className="text-[28px] font-bold font-mono tabular-nums text-[var(--ink)] tracking-tight">
+                        {compareMetrics.similarity_score.toFixed(1)}%
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleVaultComparisonEvidence}
+                      disabled={vaultLoadingId === "compare_spectral"}
+                      className="px-3.5 py-2 rounded-[6px] bg-[var(--acc)] hover:opacity-90 text-white text-[12px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 shadow-sm"
+                    >
+                      {vaultLoadingId === "compare_spectral" ? (
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Lock className="w-3.5 h-3.5" />
+                      )}
+                      <span>Kunci ke Vault</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Bit Distance Metric Pills */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div className="p-3 rounded bg-[var(--s2)] border border-[var(--line)]">
+                    <span className="text-[11px] font-mono text-[var(--mute)] block">pHash Hamming Distance</span>
+                    <span className="text-[16px] font-mono font-bold text-[var(--ink)] tabular-nums mt-0.5 block">
+                      {compareMetrics.phash_hamming_distance} <span className="text-[12px] font-normal text-[var(--mute)]">/ 64 bit</span>
+                    </span>
+                    <span className="text-[10.5px] text-[var(--mute)] font-mono">
+                      {compareMetrics.phash_hamming_distance === 0 ? "0 perbedaan frekuensi spektral" : `${compareMetrics.phash_hamming_distance} bit berbeda`}
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded bg-[var(--s2)] border border-[var(--line)]">
+                    <span className="text-[11px] font-mono text-[var(--mute)] block">dHash Hamming Distance</span>
+                    <span className="text-[16px] font-mono font-bold text-[var(--ink)] tabular-nums mt-0.5 block">
+                      {compareMetrics.dhash_hamming_distance} <span className="text-[12px] font-normal text-[var(--mute)]">/ 64 bit</span>
+                    </span>
+                    <span className="text-[10.5px] text-[var(--mute)] font-mono">Gradien diferensial pixel</span>
+                  </div>
+
+                  <div className="p-3 rounded bg-[var(--s2)] border border-[var(--line)]">
+                    <span className="text-[11px] font-mono text-[var(--mute)] block">Rasio Dimensi A vs B</span>
+                    <span className="text-[13px] font-mono font-bold text-[var(--ink)] mt-0.5 block">
+                      {compareMetrics.file_a_dimensions.aspect_ratio} vs {compareMetrics.file_b_dimensions.aspect_ratio}
+                    </span>
+                    <span className="text-[10.5px] text-[var(--mute)] font-mono">
+                      {compareMetrics.file_a_dimensions.width}×{compareMetrics.file_a_dimensions.height} vs {compareMetrics.file_b_dimensions.width}×{compareMetrics.file_b_dimensions.height}
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded bg-[var(--s2)] border border-[var(--line)]">
+                    <span className="text-[11px] font-mono text-[var(--mute)] block">Integritas Kriptografis</span>
+                    <span className={`text-[13px] font-mono font-bold mt-0.5 block ${
+                      compareMetrics.file_a_hashes.sha256 === compareMetrics.file_b_hashes.sha256
+                        ? "text-[#22c55e]"
+                        : "text-[var(--mute)]"
+                    }`}>
+                      {compareMetrics.file_a_hashes.sha256 === compareMetrics.file_b_hashes.sha256
+                        ? "SHA-256 IDENTIK"
+                        : "DIGEST BERBEDA"}
+                    </span>
+                    <span className="text-[10.5px] text-[var(--mute)] font-mono">Verifikasi digest SHA-256</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Side-by-Side Detailed Hash & Metadata Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                {/* Column Gambar A */}
+                <div className="bg-[var(--s1)] border border-[var(--line)] rounded-[10px] p-4 space-y-3">
+                  <div className="flex justify-between items-center pb-2 border-b border-[var(--line)]">
+                    <span className="text-[11px] font-mono font-semibold text-[var(--lo)] uppercase tracking-wider flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[var(--lo)]" />
+                      <span>Telemetri Gambar A (Acuan)</span>
+                    </span>
+                    <span className="text-[11px] font-mono text-[var(--mute)]">{compareMetrics.file_a_size_formatted}</span>
+                  </div>
+
+                  <div className="space-y-2 text-[12px] font-mono">
+                    <div className="p-2.5 rounded bg-[var(--s2)] border border-[var(--line)] space-y-1">
+                      <div className="flex justify-between text-[var(--mute)]">
+                        <span>Nama Berkas:</span>
+                        <span className="text-[var(--ink)] font-semibold truncate ml-2" title={compareMetrics.file_a_name}>{compareMetrics.file_a_name}</span>
+                      </div>
+                      <div className="flex justify-between text-[var(--mute)]">
+                        <span>Resolusi &amp; Aspek:</span>
+                        <span className="text-[var(--ink)]">{compareMetrics.file_a_dimensions.width} &times; {compareMetrics.file_a_dimensions.height} px ({compareMetrics.file_a_dimensions.aspect_ratio})</span>
+                      </div>
+                    </div>
+
+                    <div className="p-2.5 rounded bg-[var(--s2)] border border-[var(--line)] space-y-2">
+                      <div>
+                        <div className="flex justify-between items-center text-[11px] text-[var(--mute)] mb-0.5">
+                          <span>Perceptual Hash (pHash):</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyHash(compareMetrics.file_a_hashes.phash)}
+                            className="hover:text-[var(--ink)] transition-colors cursor-pointer"
+                            title="Salin pHash"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <div className="text-[11px] font-mono text-[var(--lo)] break-all bg-[var(--s1)] p-1.5 rounded border border-[var(--line)] select-all">
+                          {compareMetrics.file_a_hashes.phash}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center text-[11px] text-[var(--mute)] mb-0.5">
+                          <span>Difference Hash (dHash):</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyHash(compareMetrics.file_a_hashes.dhash)}
+                            className="hover:text-[var(--ink)] transition-colors cursor-pointer"
+                            title="Salin dHash"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <div className="text-[11px] font-mono text-[var(--ink)] break-all bg-[var(--s1)] p-1.5 rounded border border-[var(--line)] select-all">
+                          {compareMetrics.file_a_hashes.dhash}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center text-[11px] text-[var(--mute)] mb-0.5">
+                          <span>SHA-256 Digest:</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyHash(compareMetrics.file_a_hashes.sha256)}
+                            className="hover:text-[var(--ink)] transition-colors cursor-pointer"
+                            title="Salin SHA-256"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <div className="text-[10px] font-mono text-[var(--mute)] break-all bg-[var(--s1)] p-1.5 rounded border border-[var(--line)] select-all">
+                          {compareMetrics.file_a_hashes.sha256}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Column Gambar B */}
+                <div className="bg-[var(--s1)] border border-[var(--line)] rounded-[10px] p-4 space-y-3">
+                  <div className="flex justify-between items-center pb-2 border-b border-[var(--line)]">
+                    <span className="text-[11px] font-mono font-semibold text-[var(--hi)] uppercase tracking-wider flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[var(--hi)]" />
+                      <span>Telemetri Gambar B (Suspek)</span>
+                    </span>
+                    <span className="text-[11px] font-mono text-[var(--mute)]">{compareMetrics.file_b_size_formatted}</span>
+                  </div>
+
+                  <div className="space-y-2 text-[12px] font-mono">
+                    <div className="p-2.5 rounded bg-[var(--s2)] border border-[var(--line)] space-y-1">
+                      <div className="flex justify-between text-[var(--mute)]">
+                        <span>Nama Berkas:</span>
+                        <span className="text-[var(--ink)] font-semibold truncate ml-2" title={compareMetrics.file_b_name}>{compareMetrics.file_b_name}</span>
+                      </div>
+                      <div className="flex justify-between text-[var(--mute)]">
+                        <span>Resolusi &amp; Aspek:</span>
+                        <span className="text-[var(--ink)]">{compareMetrics.file_b_dimensions.width} &times; {compareMetrics.file_b_dimensions.height} px ({compareMetrics.file_b_dimensions.aspect_ratio})</span>
+                      </div>
+                    </div>
+
+                    <div className="p-2.5 rounded bg-[var(--s2)] border border-[var(--line)] space-y-2">
+                      <div>
+                        <div className="flex justify-between items-center text-[11px] text-[var(--mute)] mb-0.5">
+                          <span>Perceptual Hash (pHash):</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyHash(compareMetrics.file_b_hashes.phash)}
+                            className="hover:text-[var(--ink)] transition-colors cursor-pointer"
+                            title="Salin pHash"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <div className="text-[11px] font-mono text-[var(--lo)] break-all bg-[var(--s1)] p-1.5 rounded border border-[var(--line)] select-all">
+                          {compareMetrics.file_b_hashes.phash}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center text-[11px] text-[var(--mute)] mb-0.5">
+                          <span>Difference Hash (dHash):</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyHash(compareMetrics.file_b_hashes.dhash)}
+                            className="hover:text-[var(--ink)] transition-colors cursor-pointer"
+                            title="Salin dHash"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <div className="text-[11px] font-mono text-[var(--ink)] break-all bg-[var(--s1)] p-1.5 rounded border border-[var(--line)] select-all">
+                          {compareMetrics.file_b_hashes.dhash}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center text-[11px] text-[var(--mute)] mb-0.5">
+                          <span>SHA-256 Digest:</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyHash(compareMetrics.file_b_hashes.sha256)}
+                            className="hover:text-[var(--ink)] transition-colors cursor-pointer"
+                            title="Salin SHA-256"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <div className="text-[10px] font-mono text-[var(--mute)] break-all bg-[var(--s1)] p-1.5 rounded border border-[var(--line)] select-all">
+                          {compareMetrics.file_b_hashes.sha256}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Forensic Matrix Interpretation Card */}
+              <div className="p-4 rounded-[10px] bg-[var(--s1)] border border-[var(--line)] space-y-3">
+                <div className="flex items-center gap-2">
+                  <Info className="w-4 h-4 text-[var(--acc)]" />
+                  <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--ink)] font-mono">
+                    Matriks Interpretasi Forensik Spektral pHash (64-Bit Hamming)
                   </span>
                 </div>
-                <p className="text-[12.5px] text-[var(--mute)] m-0">
-                  Hamming bit distance: {compareResult.avatar_hash_distance} bit &bull; Algoritma: pHash (Perceptual Hash)
-                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-[11.5px] font-mono">
+                  <div className="p-2.5 rounded bg-[var(--s2)] border border-[var(--line)]">
+                    <div className="text-[#22c55e] font-bold">0 bit (100% Match)</div>
+                    <div className="text-[var(--mute)] mt-0.5">Kloning identik sempurna / byte-level duplicate tanpa perubahan frekuensi visual.</div>
+                  </div>
+                  <div className="p-2.5 rounded bg-[var(--s2)] border border-[var(--line)]">
+                    <div className="text-[#38bdf8] font-bold">1 - 5 bit (92% - 98%)</div>
+                    <div className="text-[var(--mute)] mt-0.5">Varian modifikasi (re-encoding JPEG, crop ringan, watermark, atau rotasi mikro).</div>
+                  </div>
+                  <div className="p-2.5 rounded bg-[var(--s2)] border border-[var(--line)]">
+                    <div className="text-[#eab308] font-bold">6 - 10 bit (84% - 91%)</div>
+                    <div className="text-[var(--mute)] mt-0.5">Kemiripan pola substansial (kemungkinan variasi angle pemotretan atau filter kontras tinggi).</div>
+                  </div>
+                  <div className="p-2.5 rounded bg-[var(--s2)] border border-[var(--line)]">
+                    <div className="text-[#ef4444] font-bold">&gt; 10 bit (&lt;84%)</div>
+                    <div className="text-[var(--mute)] mt-0.5">Citra berbeda secara struktur visual dan spektral frekuensi gambar.</div>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
 

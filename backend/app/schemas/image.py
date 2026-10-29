@@ -128,10 +128,33 @@ class GlobalImageScanResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     forensics: ImageForensicsResponse
-    investigation_id: str = "inv-jokowi-001"
+    investigation_id: str | None = None
     target_phash: str
     target_sha256: str
     total_profiles_matched: int
     high_risk_matches: int
     matched_entity_name: str
     matched_profiles: list[MatchedProfile] = Field(default_factory=list)
+
+
+class ImageComparisonMetrics(BaseModel):
+    """Metrics and spectral comparison between two images (1-on-1 pHash/dHash)."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    file_a_name: str
+    file_b_name: str
+    file_a_size_formatted: str
+    file_b_size_formatted: str
+    file_a_dimensions: ImageDimensions
+    file_b_dimensions: ImageDimensions
+    file_a_hashes: ImageHashes
+    file_b_hashes: ImageHashes
+    phash_hamming_distance: int = Field(..., description="Hamming bit distance between perceptual hashes (0 to 64)")
+    dhash_hamming_distance: int = Field(..., description="Hamming bit distance between difference hashes (0 to 64)")
+    similarity_score: float = Field(..., description="Visual similarity score percentage (0.0 to 100.0)")
+    verdict: str = Field(..., description="Human-readable forensic verdict")
+    match_classification: str = Field(..., description="EXACT_MATCH, CLONED_IMAGE, MODIFIED_VARIANT, DIFFERENT")
+    file_a_preview: str | None = None
+    file_b_preview: str | None = None
+
